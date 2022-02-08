@@ -95,6 +95,8 @@ void Week_2_pluginAudioProcessor::prepareToPlay (double sampleRate, int samplesP
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+    mSineWave.initialize(442, sampleRate);
+    
 }
 
 void Week_2_pluginAudioProcessor::releaseResources()
@@ -151,20 +153,20 @@ void Week_2_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     // Alternatively, you can process the samples with the channels
     // interleaved by keeping the same state.
     
+    /*
     static float phase = 0;
     static float phase_lfo = 0;
     
     for (int i = 0; i < buffer.getNumSamples(); i++)
     {
-        //make two sin oscs
-        float sine_out = std::sin(phase * juce::MathConstants<float>::twoPi);
+        
+        phase_lfo += 5 / getSampleRate();
         float lfo = std::sin(phase_lfo * juce::MathConstants<float>::twoPi);
         
         
-        //map phases to sampleRate and increment
-        phase_lfo += 5 / getSampleRate();
         phase += 442 * lfo / getSampleRate();
-        
+        float sine_out = std::sin(phase * juce::MathConstants<float>::twoPi);
+       
         
         //reset wavetables
         if (phase_lfo > 1.f)
@@ -180,6 +182,30 @@ void Week_2_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
         
         buffer.setSample(0, i, sine_out);
         buffer.setSample(1, i, sine_out);
+        
+    }
+    */
+    
+    // Left channel = 0 in the audio buffer
+    int left = 0;
+    
+    // Right channel = 1 in the audio buffer
+    int right = 1;
+    
+    // FOR EACH SAMPLE IN THE INCOMING AUDIO BUFFER
+    for (int sample_index = 0; sample_index < buffer.getNumSamples(); sample_index++) {
+        
+        // GET THE NEXT SAMPLE FROM OUR SINE GENERATOR
+        float output = mSineWave.getNextSample();
+        
+        // STORE THE OUTPUT TO THE LEFT AND RIGHT CHANNELS OF THE AUDIO BUFFER
+        
+        // FROM JUCE:
+        // void setSample (int destChannel, int destSample, Type newValue)
+        
+        buffer.setSample(left, sample_index, output);
+        
+        buffer.setSample(right, sample_index, output);
         
     }
    
