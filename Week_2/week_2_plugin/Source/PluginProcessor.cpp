@@ -197,6 +197,7 @@ void Week_2_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
         
         // GET THE NEXT SAMPLE FROM OUR SINE GENERATOR
         float output = mSineWave.getNextSample();
+        output *= mSineGain;
         
         // STORE THE OUTPUT TO THE LEFT AND RIGHT CHANNELS OF THE AUDIO BUFFER
         
@@ -209,6 +210,11 @@ void Week_2_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
         
     }
    
+}
+
+void Week_2_pluginAudioProcessor::setSineVolume(float inInputVolumeAmp)
+{
+    mSineGain = inInputVolumeAmp;
 }
 
 //==============================================================================

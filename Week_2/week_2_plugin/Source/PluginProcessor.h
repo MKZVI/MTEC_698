@@ -125,6 +125,14 @@ public:
    #endif
 
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
+    
+    /*
+    
+     This is a function for the editor in order to update value of sinewave
+     
+     */
+    
+    void setSineVolume(float inInputVolumeAmp);
 
     //==============================================================================
     juce::AudioProcessorEditor* createEditor() override;
@@ -152,6 +160,9 @@ public:
 private:
     
     SineWave mSineWave;
+    SineWave mModulator;
+    
+    float mSineGain = 1.f;
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Week_2_pluginAudioProcessor)

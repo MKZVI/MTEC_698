@@ -15,7 +15,19 @@ Week_2_pluginAudioProcessorEditor::Week_2_pluginAudioProcessorEditor (Week_2_plu
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (400, 300);
+    
+    mSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
+    mSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    mSlider.setRange(0.f, 1.f);
+    addAndMakeVisible(mSlider);
+    
+    mSlider.onValueChange = [this]()
+    {
+        DBG(mSlider.getValue());
+        audioProcessor.setSineVolume(mSlider.getValue());
+    };
+    
+    setSize(400, 300);
 }
 
 Week_2_pluginAudioProcessorEditor::~Week_2_pluginAudioProcessorEditor()
@@ -37,4 +49,5 @@ void Week_2_pluginAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
+    mSlider.setBounds(0, 0, 150, 150);
 }
