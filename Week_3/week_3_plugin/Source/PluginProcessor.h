@@ -125,6 +125,9 @@ public:
    #endif
 
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
+    
+    void setCarrierVolume(float inInputVolumeAmp);
+    
 
     //==============================================================================
     juce::AudioProcessorEditor* createEditor() override;
@@ -154,6 +157,7 @@ private:
     SineWave mCarrier;
     SineWave mModulator;
     
+    float mCarrierGain = 1.f;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Week_3_pluginAudioProcessor)
 };

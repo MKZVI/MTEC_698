@@ -25,6 +25,14 @@ public:
     void resized() override;
 
 private:
+    
+    juce::Slider mCarrierVol;
+    juce::Slider mCarrierFreq;
+    juce::Slider mCarrierPhase;
+    juce::Slider mModIndex;
+    juce::Slider mModFreq;
+    juce::Slider mModPhase;
+    
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     Week_3_pluginAudioProcessor& audioProcessor;

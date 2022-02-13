@@ -156,11 +156,17 @@ void Week_3_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     {
         //GET NEXT OUTPUT SAMPLE
         float output = mCarrier.getNextSample();
+        output *= mCarrierGain;
         
         buffer.setSample(left, sample_index, output);
         buffer.setSample(right, sample_index, output);
     }
     
+}
+
+void Week_3_pluginAudioProcessor::setCarrierVolume(float inInputVolumeAmp)
+{
+    mCarrierGain = inInputVolumeAmp;
 }
 
 //==============================================================================
