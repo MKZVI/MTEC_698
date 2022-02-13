@@ -69,6 +69,14 @@ public:
         
     }
     
+    float FM (SineWave modulator){
+        
+        float output = std::sin(juce::MathConstants<float>::twoPi * this->getNextSample() + (modulator.getNextSample() * mModIndex));
+        
+        return output;
+    }
+    
+    
     
     /* */
     float getNextSample() {
@@ -102,6 +110,7 @@ private:
     float mSampleRate = 44100;
     float mPhase = 0;
     float mPhaseOffset = 0;
+    float mModIndex = 20;
     
 };
 
@@ -127,6 +136,7 @@ public:
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
     
     void setCarrierVolume(float inInputVolumeAmp);
+    void setCarrierFreq(float inInputCarrFreq);
     
 
     //==============================================================================
@@ -158,6 +168,7 @@ private:
     SineWave mModulator;
     
     float mCarrierGain = 1.f;
+    float mCarrierFreq = 221.f;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Week_3_pluginAudioProcessor)
 };

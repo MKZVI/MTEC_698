@@ -33,6 +33,11 @@ Week_3_pluginAudioProcessorEditor::Week_3_pluginAudioProcessorEditor (Week_3_plu
     mCarrierFreq.setRange(100.f, 2000.f);
     addAndMakeVisible(mCarrierFreq);
     
+    mCarrierFreq.onValueChange = [this]()
+    {
+        audioProcessor.setCarrierFreq(mCarrierFreq.getValue());
+    };
+    
     //setup carrier phase offset control
     mCarrierPhase.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
     mCarrierPhase.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);

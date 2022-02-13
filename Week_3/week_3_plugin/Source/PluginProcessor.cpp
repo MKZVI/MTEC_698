@@ -93,8 +93,8 @@ void Week_3_pluginAudioProcessor::changeProgramName (int index, const juce::Stri
 //==============================================================================
 void Week_3_pluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    mCarrier.initialize(442, sampleRate);
-    mModulator.initialize(0, sampleRate);
+    mCarrier.initialize(mCarrierFreq, sampleRate);
+    mModulator.initialize(10, sampleRate);
     
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
@@ -154,8 +154,15 @@ void Week_3_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     //FOR EACH SAMPLE IN THHE INCOMING AUDIO BUFFER
     for(int sample_index = 0; sample_index < buffer.getNumSamples(); sample_index++)
     {
+        
+        
+       
+       
         //GET NEXT OUTPUT SAMPLE
-        float output = mCarrier.getNextSample();
+        
+        mCarrier.setFrequency(mCarrierFreq);
+        
+        float output = mCarrier.FM(mModulator);
         output *= mCarrierGain;
         
         buffer.setSample(left, sample_index, output);
@@ -167,6 +174,11 @@ void Week_3_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
 void Week_3_pluginAudioProcessor::setCarrierVolume(float inInputVolumeAmp)
 {
     mCarrierGain = inInputVolumeAmp;
+}
+
+void Week_3_pluginAudioProcessor::setCarrierFreq(float inInputCarrFreq)
+{
+    mCarrierFreq = inInputCarrFreq;
 }
 
 //==============================================================================
