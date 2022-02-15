@@ -10,6 +10,7 @@
 
 #include <JuceHeader.h>
 
+
 /* THIS IS A BASIC SINEWAVE CLASS */
 
 class SineWave {
@@ -71,6 +72,10 @@ public:
     
     float FM (SineWave modulator){
         
+        //mModIndex = mSmoothGain.getNextValue();
+        //modulator.setFrequency(mModFreq);
+        
+        
         float output = std::sin(juce::MathConstants<float>::twoPi * this->getNextSample() + (modulator.getNextSample() * mModIndex));
         
         return output;
@@ -110,9 +115,14 @@ private:
     float mSampleRate = 44100;
     float mPhase = 0;
     float mPhaseOffset = 0;
-    float mModIndex = 20;
+    float mModIndex = 50;
+    float mModFreq = 40;
+    
+    
     
 };
+
+
 
 
 //==============================================================================
@@ -137,6 +147,8 @@ public:
     
     void setCarrierVolume(float inInputVolumeAmp);
     void setCarrierFreq(float inInputCarrFreq);
+    void setModIndex(float inInputModIndex);
+    void setModFreq(float inInputModFreq);
     
 
     //==============================================================================
@@ -167,8 +179,14 @@ private:
     SineWave mCarrier;
     SineWave mModulator;
     
-    float mCarrierGain = 1.f;
+    float mCarrierGain = 0.f;
     float mCarrierFreq = 221.f;
+    
+    float mModIndex = 0.f;
+    float mModFreq = 20.f;
+    
+    juce::SmoothedValue<float> mSmoothGain;
+    juce::SmoothedValue<float> mSmoothIndex;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Week_3_pluginAudioProcessor)
 };

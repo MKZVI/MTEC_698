@@ -93,8 +93,11 @@ void Week_3_pluginAudioProcessor::changeProgramName (int index, const juce::Stri
 //==============================================================================
 void Week_3_pluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
+    
     mCarrier.initialize(mCarrierFreq, sampleRate);
-    mModulator.initialize(10, sampleRate);
+    mModulator.initialize(mModFreq, sampleRate);
+    mSmoothGain.reset(sampleRate, 1.f);
+    mSmoothIndex.reset(sampleRate, 1.f);
     
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
@@ -151,6 +154,8 @@ void Week_3_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     int left = 0;
     int right = 1;
     
+    
+    
     //FOR EACH SAMPLE IN THHE INCOMING AUDIO BUFFER
     for(int sample_index = 0; sample_index < buffer.getNumSamples(); sample_index++)
     {
@@ -160,9 +165,18 @@ void Week_3_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
        
         //GET NEXT OUTPUT SAMPLE
         
+        mCarrierGain = mSmoothGain.getNextValue();
         mCarrier.setFrequency(mCarrierFreq);
         
+        mModIndex = mSmoothGain.getNextValue();
+        mModulator.setFrequency(mModFreq);
+        
         float output = mCarrier.FM(mModulator);
+        //mCarrier.FM(mModulator);
+        //float output = mCarrier.getNextSample();
+        
+        
+        
         output *= mCarrierGain;
         
         buffer.setSample(left, sample_index, output);
@@ -173,12 +187,24 @@ void Week_3_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
 
 void Week_3_pluginAudioProcessor::setCarrierVolume(float inInputVolumeAmp)
 {
-    mCarrierGain = inInputVolumeAmp;
+    mSmoothGain.setTargetValue(inInputVolumeAmp);
+    //mCarrierGain = inInputVolumeAmp;
 }
 
 void Week_3_pluginAudioProcessor::setCarrierFreq(float inInputCarrFreq)
 {
     mCarrierFreq = inInputCarrFreq;
+}
+
+void Week_3_pluginAudioProcessor::setModIndex(float inInputModIndex)
+{
+    mSmoothIndex.setTargetValue(inInputModIndex);
+    //mModIndex = inInputModIndex;
+}
+
+void Week_3_pluginAudioProcessor::setModFreq(float inInputModFreq)
+{
+    mModFreq = inInputModFreq;
 }
 
 //==============================================================================

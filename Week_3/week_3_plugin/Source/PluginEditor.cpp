@@ -18,18 +18,19 @@ Week_3_pluginAudioProcessorEditor::Week_3_pluginAudioProcessorEditor (Week_3_plu
     
     //set up carrier volume control
     mCarrierVol.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
-    mCarrierVol.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
-    mCarrierVol.setRange(0.f, 1.f);
+    mCarrierVol.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 20);
+    mCarrierVol.setRange(0.f, 0.1f);
     addAndMakeVisible(mCarrierVol);
     
     mCarrierVol.onValueChange = [this]()
     {
         audioProcessor.setCarrierVolume(mCarrierVol.getValue());
+        
     };
     
     //set up carrier freq control
     mCarrierFreq.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
-    mCarrierFreq.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    mCarrierFreq.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 20);
     mCarrierFreq.setRange(100.f, 2000.f);
     addAndMakeVisible(mCarrierFreq);
     
@@ -46,19 +47,31 @@ Week_3_pluginAudioProcessorEditor::Week_3_pluginAudioProcessorEditor (Week_3_plu
     
     //set up mod index
     mModIndex.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
-    mCarrierPhase.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
-    mCarrierPhase.setRange(0.f, 10.f);
+    mModIndex.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 20);
+    mModIndex.setRange(0.f, 10.f);
     addAndMakeVisible(mModIndex);
+    
+    mModIndex.onValueChange = [this]()
+    {
+        audioProcessor.setModIndex(mModIndex.getValue());
+    };
+    
+    
     
     //set up mod freq
     mModFreq.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
-    mModFreq.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    mModFreq.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 20);
     mModFreq.setRange(20.f, 4000.f);
     addAndMakeVisible(mModFreq);
     
+    mModFreq.onValueChange = [this]()
+    {
+        audioProcessor.setModFreq(mModFreq.getValue());
+    };
+    
     //set up mod phase offset
     mModPhase.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
-    mModPhase.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    mModPhase.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 20);
     mModPhase.setRange(0.f, 1.f);
     addAndMakeVisible(mModPhase);
     
@@ -93,8 +106,8 @@ void Week_3_pluginAudioProcessorEditor::resized()
     mCarrierPhase.setBounds((getWidth()/3)*2, 0, getWidth()/3, getHeight()/2);
     
     //bottom row
-    mModFreq.setBounds(0, getHeight()/2, getWidth()/3, getHeight()/2 );
-    mModIndex.setBounds(getWidth()/3, getHeight()/2, getWidth()/3, getHeight()/2);
+    mModIndex.setBounds(0, getHeight()/2, getWidth()/3, getHeight()/2 );
+    mModFreq.setBounds(getWidth()/3, getHeight()/2, getWidth()/3, getHeight()/2);
     mModPhase.setBounds((getWidth()/3)*2, getHeight()/2, getWidth()/3, getHeight()/2);
     
 }
