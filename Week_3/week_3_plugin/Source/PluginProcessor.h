@@ -58,10 +58,11 @@ public:
         mSampleRate = inSampleRate;
     }
     
-    void setFrequency(float newFrequencyHz) {
+    float setFrequency(float newFrequencyHz) {
         
         mFreqHz = newFrequencyHz;
         
+        return newFrequencyHz;
     }
     
     void setPhaseOffset(float newPhase) {
@@ -70,13 +71,23 @@ public:
         
     }
     
-    float FM (SineWave modulator){
+    
+    
+    
+    float getNextSample(float modWave, float modIndex){
         
-        //mModIndex = mSmoothGain.getNextValue();
-        //modulator.setFrequency(mModFreq);
+        float output = std::sin(juce::MathConstants<float>::twoPi * mPhase + modWave * modIndex);
         
+        // move our phase forward in the sign table by a single step determined by our desired samplerate & playback hz
+        mPhase += mFreqHz / mSampleRate;
         
-        float output = std::sin(juce::MathConstants<float>::twoPi * this->getNextSample() + (modulator.getNextSample() * mModIndex));
+        // add offset
+        mPhase += mPhaseOffset;
+        
+        // if we go passed 1 -- lets loop back around the sine wave
+        if (mPhase > 1.f) {
+            mPhase -= 1.f;
+        }
         
         return output;
     }
@@ -115,7 +126,7 @@ private:
     float mSampleRate = 44100;
     float mPhase = 0;
     float mPhaseOffset = 0;
-    float mModIndex = 50;
+    float mModIndex = 0;
     float mModFreq = 40;
     
     

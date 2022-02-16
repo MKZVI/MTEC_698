@@ -168,12 +168,13 @@ void Week_3_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
         mCarrierGain = mSmoothGain.getNextValue();
         mCarrier.setFrequency(mCarrierFreq);
         
-        mModIndex = mSmoothGain.getNextValue();
+        mModIndex = mSmoothIndex.getNextValue();
         mModulator.setFrequency(mModFreq);
         
-        float output = mCarrier.FM(mModulator);
-        //mCarrier.FM(mModulator);
-        //float output = mCarrier.getNextSample();
+       
+        
+        
+        float output = mCarrier.getNextSample(mModulator.getNextSample(), mModIndex);
         
         
         
@@ -188,7 +189,7 @@ void Week_3_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
 void Week_3_pluginAudioProcessor::setCarrierVolume(float inInputVolumeAmp)
 {
     mSmoothGain.setTargetValue(inInputVolumeAmp);
-    //mCarrierGain = inInputVolumeAmp;
+    
 }
 
 void Week_3_pluginAudioProcessor::setCarrierFreq(float inInputCarrFreq)
@@ -199,7 +200,7 @@ void Week_3_pluginAudioProcessor::setCarrierFreq(float inInputCarrFreq)
 void Week_3_pluginAudioProcessor::setModIndex(float inInputModIndex)
 {
     mSmoothIndex.setTargetValue(inInputModIndex);
-    //mModIndex = inInputModIndex;
+    
 }
 
 void Week_3_pluginAudioProcessor::setModFreq(float inInputModFreq)
