@@ -93,8 +93,11 @@ void Week_3_pluginAudioProcessor::changeProgramName (int index, const juce::Stri
 //==============================================================================
 void Week_3_pluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    mCarrier.initialize(442, sampleRate);
-    mModulator.initialize(0, sampleRate);
+    
+    mCarrier.initialize(mCarrierFreq, sampleRate);
+    mModulator.initialize(mModFreq, sampleRate);
+    mSmoothGain.reset(sampleRate, 1.f);
+    mSmoothIndex.reset(sampleRate, 1.f);
     
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
@@ -151,16 +154,58 @@ void Week_3_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     int left = 0;
     int right = 1;
     
+    
+    
     //FOR EACH SAMPLE IN THHE INCOMING AUDIO BUFFER
     for(int sample_index = 0; sample_index < buffer.getNumSamples(); sample_index++)
     {
+        
+        
+       
+       
         //GET NEXT OUTPUT SAMPLE
-        float output = mCarrier.getNextSample();
+        
+        mCarrierGain = mSmoothGain.getNextValue();
+        mCarrier.setFrequency(mCarrierFreq);
+        
+        mModIndex = mSmoothIndex.getNextValue();
+        mModulator.setFrequency(mModFreq);
+        
+       
+        
+        
+        float output = mCarrier.getNextSample(mModulator.getNextSample(), mModIndex);
+        
+        
+        
+        output *= mCarrierGain;
         
         buffer.setSample(left, sample_index, output);
         buffer.setSample(right, sample_index, output);
     }
     
+}
+
+void Week_3_pluginAudioProcessor::setCarrierVolume(float inInputVolumeAmp)
+{
+    mSmoothGain.setTargetValue(inInputVolumeAmp);
+    
+}
+
+void Week_3_pluginAudioProcessor::setCarrierFreq(float inInputCarrFreq)
+{
+    mCarrierFreq = inInputCarrFreq;
+}
+
+void Week_3_pluginAudioProcessor::setModIndex(float inInputModIndex)
+{
+    mSmoothIndex.setTargetValue(inInputModIndex);
+    
+}
+
+void Week_3_pluginAudioProcessor::setModFreq(float inInputModFreq)
+{
+    mModFreq = inInputModFreq;
 }
 
 //==============================================================================

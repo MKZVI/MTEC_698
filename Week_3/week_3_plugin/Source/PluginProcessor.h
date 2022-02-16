@@ -10,6 +10,7 @@
 
 #include <JuceHeader.h>
 
+
 /* THIS IS A BASIC SINEWAVE CLASS */
 
 class SineWave {
@@ -57,10 +58,11 @@ public:
         mSampleRate = inSampleRate;
     }
     
-    void setFrequency(float newFrequencyHz) {
+    float setFrequency(float newFrequencyHz) {
         
         mFreqHz = newFrequencyHz;
         
+        return newFrequencyHz;
     }
     
     void setPhaseOffset(float newPhase) {
@@ -68,6 +70,28 @@ public:
         mPhaseOffset = newPhase * (juce::MathConstants<float>::twoPi);
         
     }
+    
+    
+    
+    
+    float getNextSample(float modWave, float modIndex){
+        
+        float output = std::sin(juce::MathConstants<float>::twoPi * mPhase + modWave * modIndex);
+        
+        // move our phase forward in the sign table by a single step determined by our desired samplerate & playback hz
+        mPhase += mFreqHz / mSampleRate;
+        
+        // add offset
+        mPhase += mPhaseOffset;
+        
+        // if we go passed 1 -- lets loop back around the sine wave
+        if (mPhase > 1.f) {
+            mPhase -= 1.f;
+        }
+        
+        return output;
+    }
+    
     
     
     /* */
@@ -102,8 +126,14 @@ private:
     float mSampleRate = 44100;
     float mPhase = 0;
     float mPhaseOffset = 0;
+    float mModIndex = 0;
+    float mModFreq = 40;
+    
+    
     
 };
+
+
 
 
 //==============================================================================
@@ -125,6 +155,12 @@ public:
    #endif
 
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
+    
+    void setCarrierVolume(float inInputVolumeAmp);
+    void setCarrierFreq(float inInputCarrFreq);
+    void setModIndex(float inInputModIndex);
+    void setModFreq(float inInputModFreq);
+    
 
     //==============================================================================
     juce::AudioProcessorEditor* createEditor() override;
@@ -154,6 +190,14 @@ private:
     SineWave mCarrier;
     SineWave mModulator;
     
+    float mCarrierGain = 0.f;
+    float mCarrierFreq = 221.f;
+    
+    float mModIndex = 0.f;
+    float mModFreq = 20.f;
+    
+    juce::SmoothedValue<float> mSmoothGain;
+    juce::SmoothedValue<float> mSmoothIndex;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Week_3_pluginAudioProcessor)
 };
