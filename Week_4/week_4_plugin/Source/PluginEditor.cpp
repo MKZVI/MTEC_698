@@ -65,6 +65,9 @@ void Week_4_pluginAudioProcessorEditor::paint (juce::Graphics& g)
     g.setColour (juce::Colours::white);
     g.setFont (15.0f);
     //g.drawFittedText ("Hello World!", getLocalBounds(), juce::Justification::centred, 1);
+    getLookAndFeel().setColour(juce::Slider::thumbColourId, juce::Colours::pink);
+    getLookAndFeel().setColour(juce::Slider::rotarySliderFillColourId, juce::Colours::chartreuse);
+    getLookAndFeel().setColour(juce::Slider::rotarySliderOutlineColourId, juce::Colours::black);
 }
 
 void Week_4_pluginAudioProcessorEditor::resized()
