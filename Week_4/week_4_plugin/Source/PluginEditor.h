@@ -26,6 +26,8 @@ public:
 
 private:
     
+    int sliderSize = 200;
+    
     /*======= SLIDER 1 ======= */
     
     /* The Slider Member For Our UI */

@@ -71,8 +71,8 @@ void Week_4_pluginAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
-    mGainAmountSlider.setBounds(0, 0, 200, 200 );
-    mFMAmountSlider.setBounds(getWidth()/2, 0, 200, 200);
-    mSineWaveCarrFreqSlider.setBounds(0, getHeight()/2, 200, 200);
-    mSineWaveModFreqSlider.setBounds(getWidth()/2, getHeight()/2, 200, 200);
+    mGainAmountSlider.setBounds(sliderSize/4, 0, sliderSize, sliderSize );
+    mFMAmountSlider.setBounds(getWidth()/2 + sliderSize/4, 0, sliderSize, sliderSize);
+    mSineWaveCarrFreqSlider.setBounds(sliderSize/4, getHeight()/2, sliderSize, sliderSize);
+    mSineWaveModFreqSlider.setBounds(getWidth()/2 + sliderSize/4, getHeight()/2, sliderSize, sliderSize);
 }
