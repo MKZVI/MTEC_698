@@ -80,3 +80,9 @@ float SineWave::setFreq(float newFreq)
     
     return newFreq;
 }
+
+void SineWave::setParameters(float inFreq, float inGain)
+{
+    mFreqHz = inFreq;
+    mSmoothedGain.setTargetValue(inGain);
+}

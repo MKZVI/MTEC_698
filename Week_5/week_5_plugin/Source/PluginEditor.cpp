@@ -32,24 +32,50 @@ Week_5_pluginAudioProcessorEditor::Week_5_pluginAudioProcessorEditor (Week_5_plu
     mSineWaveModFreqSlider.setTextBoxStyle(juce::Slider::TextBoxAbove, false, 150, 20);
     addAndMakeVisible(mSineWaveModFreqSlider);
     
-    mGainAmountSliderAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getValueTreeState(),
-                                                                                               PARAMETER_NAMES[GAIN_AMOUNT],
-                                                                                               mGainAmountSlider));
+    mDelayTimeSecondsSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
+    mDelayTimeSecondsSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 150, 20);
+    addAndMakeVisible(mDelayTimeSecondsSlider);
     
-    mFMAmountSliderAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getValueTreeState(),
-                                                                                             PARAMETER_NAMES[FM_AMOUNT],
-                                                                                             mFMAmountSlider));
+    mDelayFeedbackSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
+    mDelayFeedbackSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 150, 20);
+    addAndMakeVisible(mDelayFeedbackSlider);
     
-    mSineWaveCarrFreqSliderAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getValueTreeState(),
-                                                                                                     PARAMETER_NAMES[CARR_FREQ],
-                                                                                                     mSineWaveCarrFreqSlider));
-    
-    mSineWaveModFreqSliderAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getValueTreeState(),
-                                                                                                    PARAMETER_NAMES[MOD_FREQ],
-                                                                                                    mSineWaveModFreqSlider));
+    mDelayMixSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
+    mDelayMixSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 150, 20);
+    addAndMakeVisible(mDelayMixSlider);
     
     
-    setSize (600, 450);
+    
+    //mGainAmountSliderAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getValueTreeState(),
+                                                                                               //PARAMETER_NAMES[GAIN_AMOUNT],
+                                                                                               //mGainAmountSlider));
+    
+    //mFMAmountSliderAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getValueTreeState(),
+                                                                                             //PARAMETER_NAMES[FM_AMOUNT],
+                                                                                             //mFMAmountSlider));
+    
+    //mSineWaveCarrFreqSliderAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getValueTreeState(),
+                                                                                                     //PARAMETER_NAMES[CARR_FREQ],
+                                                                                                     //mSineWaveCarrFreqSlider));
+    
+    //mSineWaveModFreqSliderAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getValueTreeState(),
+                                                                                                    //PARAMETER_NAMES[MOD_FREQ],
+                                                                                                    //mSineWaveModFreqSlider));
+                                                                                                    
+    typedef juce::AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
+    auto* value_tree = audioProcessor.getParameterManager()->getValueTree();
+                                                                                                    
+    mGainAmountSliderAttachment.reset(new SliderAttachment(*value_tree, PARAMETER_NAMES[GAIN_AMOUNT], mGainAmountSlider));
+    mFMAmountSliderAttachment.reset(new SliderAttachment(*value_tree, PARAMETER_NAMES[FM_AMOUNT], mFMAmountSlider));
+    mSineWaveCarrFreqSliderAttachment.reset(new SliderAttachment(*value_tree, PARAMETER_NAMES[CARR_FREQ], mSineWaveCarrFreqSlider));
+    mSineWaveModFreqSliderAttachment.reset(new SliderAttachment(*value_tree, PARAMETER_NAMES[MOD_FREQ], mSineWaveModFreqSlider));
+    
+    mDelayTimeSecondsSliderAttachment.reset(new SliderAttachment(*value_tree, PARAMETER_NAMES[DELAY_TIME_SECONDS], mDelayTimeSecondsSlider));
+    mDelayFeedbackSliderAttachment.reset(new SliderAttachment(*value_tree, PARAMETER_NAMES[DELAY_FEEDBACK], mDelayFeedbackSlider));
+    mDelayMixSliderAttachment.reset(new SliderAttachment(*value_tree, PARAMETER_NAMES[DELAY_MIX], mDelayMixSlider));
+    
+    
+    setSize (900, 450);
 }
 
 Week_5_pluginAudioProcessorEditor::~Week_5_pluginAudioProcessorEditor()
@@ -64,7 +90,7 @@ void Week_5_pluginAudioProcessorEditor::paint (juce::Graphics& g)
     
     g.setColour (juce::Colours::white);
     g.setFont (15.0f);
-    //g.drawFittedText ("Hello World!", getLocalBounds(), juce::Justification::centred, 1);
+    
     getLookAndFeel().setColour(juce::Slider::thumbColourId, juce::Colours::pink);
     getLookAndFeel().setColour(juce::Slider::rotarySliderFillColourId, juce::Colours::chartreuse);
     getLookAndFeel().setColour(juce::Slider::rotarySliderOutlineColourId, juce::Colours::black);
@@ -75,7 +101,11 @@ void Week_5_pluginAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
     mGainAmountSlider.setBounds(sliderSize/4, 0, sliderSize, sliderSize );
-    mFMAmountSlider.setBounds(getWidth()/2 + sliderSize/4, 0, sliderSize, sliderSize);
+    mFMAmountSlider.setBounds(getWidth()/3 + sliderSize/4, 0, sliderSize, sliderSize);
     mSineWaveCarrFreqSlider.setBounds(sliderSize/4, getHeight()/2, sliderSize, sliderSize);
-    mSineWaveModFreqSlider.setBounds(getWidth()/2 + sliderSize/4, getHeight()/2, sliderSize, sliderSize);
+    mSineWaveModFreqSlider.setBounds(getWidth()/3 + sliderSize/4, getHeight()/2, sliderSize, sliderSize);
+    
+    mDelayTimeSecondsSlider.setBounds(getWidth()/3 * 2 + sliderSize/4, 0, sliderSize/3 * 2, sliderSize/3 * 2);
+    mDelayFeedbackSlider.setBounds(getWidth()/3 * 2 + sliderSize/4, getHeight()/3, sliderSize/3 * 2, sliderSize/3 * 2);
+    mDelayMixSlider.setBounds(getWidth()/3*2 + sliderSize/4, getHeight()/3 * 2, sliderSize/3 * 2, sliderSize/3 * 2);
 }

@@ -50,6 +50,15 @@ private:
     /********************************/
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> mSineWaveModFreqSliderAttachment;
     
+    juce::Slider mDelayTimeSecondsSlider;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> mDelayTimeSecondsSliderAttachment;
+    
+    juce::Slider mDelayFeedbackSlider;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> mDelayFeedbackSliderAttachment;
+    
+    juce::Slider mDelayMixSlider;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> mDelayMixSliderAttachment;
+    
     
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.

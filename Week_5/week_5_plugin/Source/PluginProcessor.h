@@ -10,7 +10,8 @@
 
 #include <JuceHeader.h>
 #include "SineWave.h"
-#include "ParameterDefines.h"
+#include "Delay.h"
+#include "ParameterManager.h"
 
 //==============================================================================
 /**
@@ -54,14 +55,20 @@ public:
     //==============================================================================
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
-    juce::AudioProcessorValueTreeState& getValueTreeState();
+    //juce::AudioProcessorValueTreeState& getValueTreeState();
+    ParameterManager* getParameterManager();
     
 private:
     
     SineWave mSineWave1;
     SineWave mSineWave1FMOperator;
     
-    std::unique_ptr<juce::AudioProcessorValueTreeState> mParameterState;
+    Delay mDelayLeft;
+    Delay mDelayRight;
+    
+    std::unique_ptr<ParameterManager> mParameterManager;
+    
+    //std::unique_ptr<juce::AudioProcessorValueTreeState> mParameterState;
     
     std::array<std::atomic<float>*, TotalNumberParameters> mParameterValues;
     

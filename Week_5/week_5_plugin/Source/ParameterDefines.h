@@ -22,6 +22,9 @@ enum {
     FM_AMOUNT,
     CARR_FREQ,
     MOD_FREQ,
+    DELAY_TIME_SECONDS,
+    DELAY_FEEDBACK,
+    DELAY_MIX,
     TotalNumberParameters
 };
 
@@ -29,7 +32,10 @@ static const juce::StringArray PARAMETER_NAMES {
     "Gain Amount",
     "FM Amount",
     "Carrier Hz",
-    "Modulator Hz"
+    "Modulator Hz",
+    "Delay Time Seconds",
+    "Delay Feedback",
+    "Delay Mix",
 };
 
 /* the normaliseable range class will be helpful in the future when working with
@@ -41,6 +47,9 @@ static const juce::Array<juce::NormalisableRange<float>> PARAMETER_RANGES {
     juce::NormalisableRange<float>(0.f, 10.f, 0.f, 1.f),
     juce::NormalisableRange<float>(40.f, 2000.f, 0.f, 1.f),
     juce::NormalisableRange<float>(05.f, 2000.f, 0.f, 1.f),
+    juce::NormalisableRange<float>(.02f, 1.f, 0.f, .25f),
+    juce::NormalisableRange<float>(0.f, .9f, 0.f, 1.f),
+    juce::NormalisableRange<float>(0.f, 1.f, 0.f, 0.5f),
 };
 
 #endif /* ParameterDefines_h */

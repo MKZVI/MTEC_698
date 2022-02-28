@@ -13,35 +13,13 @@
 //==============================================================================
 Week_5_pluginAudioProcessor::Week_5_pluginAudioProcessor()
 : AudioProcessor (BusesProperties()
-.withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
+                 .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
                   .withOutput ("Output", juce::AudioChannelSet::stereo(), true))
 {
-    /*
-     
-     NOTE:
-     
-     I know this code looks pretty intimidating and crumby -- sometimes we need to get into the trenches a bit when getting things
-     setup in C++ -- however we only need to this one time for the application. Once we set this up we'll never touch this code
-     again, and well use simpler looking code like in our sinewave class.
-     
-     */
     
+    mParameterManager.reset(new ParameterManager(this));
     
-    /* declare a vector of parameters */
-    std::vector<std::unique_ptr<juce::RangedAudioParameter>> parameters;
-    
-    /* loop through our parameter defines and add the parameters to the vector */
-    for (int i = 0; i < TotalNumberParameters; i++) {
-        parameters.push_back(std::make_unique<juce::AudioParameterFloat>(PARAMETER_NAMES[i], PARAMETER_NAMES[i], PARAMETER_RANGES[i], 1.f));
-    }
-    
-    /* construct the parameter tree object -- this will actually add all the parameters to our plugin */
-    mParameterState.reset(new juce::AudioProcessorValueTreeState(*this, nullptr, "PARAMETER_STATE", { parameters.begin(), parameters.end() }));
-    
-    /* now lets get pointers which point to the current values of the parameters, we can use these in our processing loops */
-    for (int i = 0; i < TotalNumberParameters; i++) {
-        mParameterValues[i] = mParameterState->getRawParameterValue(PARAMETER_NAMES[i]);
-    }
+   
 }
 
 Week_5_pluginAudioProcessor::~Week_5_pluginAudioProcessor()
@@ -115,6 +93,8 @@ void Week_5_pluginAudioProcessor::prepareToPlay (double sampleRate, int samplesP
 {
     mSineWave1.initialize(442, sampleRate);
     mSineWave1FMOperator.initialize(442, sampleRate);
+    mDelayLeft.initialize(sampleRate);
+    mDelayRight.initialize(sampleRate);
 }
 
 void Week_5_pluginAudioProcessor::releaseResources()
@@ -158,10 +138,32 @@ void Week_5_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
     
-    mSineWave1FMOperator.setGain(mParameterValues[FM_AMOUNT]->load());
-    mSineWave1.setGain(mParameterValues[GAIN_AMOUNT]->load());
-    mSineWave1FMOperator.setFreq(mParameterValues[MOD_FREQ]->load());
-    mSineWave1.setFreq(mParameterValues[CARR_FREQ]->load());
+    //mSineWave1FMOperator.setGain(mParameterValues[FM_AMOUNT]->load());
+    //mSineWave1.setGain(mParameterValues[GAIN_AMOUNT]->load());
+    //mSineWave1FMOperator.setFreq(mParameterValues[MOD_FREQ]->load());
+    //mSineWave1.setFreq(mParameterValues[CARR_FREQ]->load());
+    
+    //for (int sample_index = 0; sample_index < buffer.getNumSamples(); sample_index++) {
+        
+        //float fm_operator = mSineWave1FMOperator.getNextSample();
+        //float output = mSineWave1.getNextSampleWithFM(fm_operator);
+        
+        //buffer.setSample(0, sample_index, output);
+        //buffer.setSample(1, sample_index, output);
+    //}
+    mSineWave1FMOperator.setParameters(mParameterManager->getCurrentValue(MOD_FREQ),
+                                       mParameterManager->getCurrentValue(FM_AMOUNT));
+    
+    mSineWave1.setParameters(mParameterManager->getCurrentValue(CARR_FREQ),
+                             mParameterManager->getCurrentValue(GAIN_AMOUNT));
+    
+    mDelayLeft.setParameters(mParameterManager->getCurrentValue(DELAY_TIME_SECONDS),
+                             mParameterManager->getCurrentValue(DELAY_FEEDBACK),
+                             mParameterManager->getCurrentValue(DELAY_MIX));
+    
+    mDelayRight.setParameters(mParameterManager->getCurrentValue(DELAY_TIME_SECONDS),
+                              mParameterManager->getCurrentValue(DELAY_FEEDBACK),
+                              mParameterManager->getCurrentValue(DELAY_MIX));
     
     for (int sample_index = 0; sample_index < buffer.getNumSamples(); sample_index++) {
         
@@ -171,12 +173,24 @@ void Week_5_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
         buffer.setSample(0, sample_index, output);
         buffer.setSample(1, sample_index, output);
     }
+    
+    mDelayLeft.processBlock(buffer.getWritePointer(0), buffer.getNumSamples());
+    mDelayRight.processBlock(buffer.getWritePointer(1), buffer.getNumSamples());
 }
 
+    
+
+ParameterManager* Week_5_pluginAudioProcessor::getParameterManager()
+{
+    return mParameterManager.get();
+}
+
+/*
 juce::AudioProcessorValueTreeState& Week_5_pluginAudioProcessor::getValueTreeState()
 {
     return *mParameterState.get();
 }
+*/
 
 //==============================================================================
 bool Week_5_pluginAudioProcessor::hasEditor() const
@@ -193,7 +207,7 @@ juce::AudioProcessorEditor* Week_5_pluginAudioProcessor::createEditor()
 void Week_5_pluginAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
     // Get the underlying ValueTree from out "Parameter Value Tree"
-    auto tree_state = mParameterState->copyState();
+    auto tree_state = mParameterManager->getValueTree()->copyState();
     
     // Convert the value tree into an XML object which can be saved on disk to as binary
     std::unique_ptr<juce::XmlElement> xml(tree_state.createXml());
@@ -216,7 +230,7 @@ void Week_5_pluginAudioProcessor::setStateInformation (const void* data, int siz
         DBG(xmlState->toString());
         
         juce::ValueTree parameter_tree = juce::ValueTree::fromXml(*xmlState);
-        mParameterState->replaceState(parameter_tree);
+        mParameterManager->getValueTree()->replaceState(parameter_tree);
         
     }
 }
