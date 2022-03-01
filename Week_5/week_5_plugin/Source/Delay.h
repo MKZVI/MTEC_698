@@ -47,10 +47,15 @@ private:
     float mFeedbackSample = 0;
     
     juce::AudioBuffer<float> mCircularBuffer;
+    juce::LinearSmoothedValue<float> mSmoothedTimeInSeconds;
+    
+    //using LinearInterpolator = juce::Interpolators::Linear;
+ 
     
     float mSampleRate;
     
-};
+    
+ };
 
 #endif /* Delay_h */
 

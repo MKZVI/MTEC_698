@@ -129,6 +129,12 @@ bool Week_5_pluginAudioProcessor::isBusesLayoutSupported (const BusesLayout& lay
 }
 #endif
 
+float mtof(float n)
+{
+    return 440.f * pow(2.f, (n - 69.f)/12.f);
+}
+
+
 void Week_5_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
@@ -138,19 +144,9 @@ void Week_5_pluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
     
-    //mSineWave1FMOperator.setGain(mParameterValues[FM_AMOUNT]->load());
-    //mSineWave1.setGain(mParameterValues[GAIN_AMOUNT]->load());
-    //mSineWave1FMOperator.setFreq(mParameterValues[MOD_FREQ]->load());
-    //mSineWave1.setFreq(mParameterValues[CARR_FREQ]->load());
+    //mtof formula
+    //440.0 * pow(2.0, (midi note - 69)/12)
     
-    //for (int sample_index = 0; sample_index < buffer.getNumSamples(); sample_index++) {
-        
-        //float fm_operator = mSineWave1FMOperator.getNextSample();
-        //float output = mSineWave1.getNextSampleWithFM(fm_operator);
-        
-        //buffer.setSample(0, sample_index, output);
-        //buffer.setSample(1, sample_index, output);
-    //}
     mSineWave1FMOperator.setParameters(mParameterManager->getCurrentValue(MOD_FREQ),
                                        mParameterManager->getCurrentValue(FM_AMOUNT));
     
@@ -185,12 +181,7 @@ ParameterManager* Week_5_pluginAudioProcessor::getParameterManager()
     return mParameterManager.get();
 }
 
-/*
-juce::AudioProcessorValueTreeState& Week_5_pluginAudioProcessor::getValueTreeState()
-{
-    return *mParameterState.get();
-}
-*/
+
 
 //==============================================================================
 bool Week_5_pluginAudioProcessor::hasEditor() const

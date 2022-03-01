@@ -26,13 +26,15 @@ void Delay::initialize(float inSampleRate)
 {
     mSampleRate = inSampleRate;
     mCircularBuffer.setSize(1, 5 * inSampleRate);
+    mSmoothedTimeInSeconds.reset(mSampleRate, 1.);
 }
 
 /* */
 void Delay::setParameters(float inTimeSeconds, float inFeedbackAmount, float inMix)
 {
     mFeedbackAmount = inFeedbackAmount;
-    mTimeInSeconds = inTimeSeconds;
+    //mTimeInSeconds = inTimeSeconds;
+    mSmoothedTimeInSeconds.setTargetValue(inTimeSeconds);
     mMix = inMix;
 }
 
@@ -55,7 +57,7 @@ void Delay::processSample(float& inSample)
         mWriteHead = 0;
     }
     
-    float time_in_sample = mTimeInSeconds * mSampleRate;
+    float time_in_sample = mSmoothedTimeInSeconds.getNextValue() * mSampleRate;
     float read_head = mWriteHead - time_in_sample;
     
     if (read_head < 0) {
