@@ -1,14 +1,14 @@
 /*
-  ==============================================================================
+  =============================================================================
 
-    Delay.h
-    Created: 27 Feb 2022 2:08:00pm
-    Author:  Micah Keren-Zvi
+    Delay.
+    Created: 27 Feb 2022 2:08:00p
+    Author:  Micah Keren-Zv
 
-  ==============================================================================
-*/
+  =============================================================================
+*
 
-#pragma once
+#pragma onc
 
 #ifndef Delay_h
 #define Delay_h
@@ -47,15 +47,15 @@ private:
     float mFeedbackSample = 0;
     
     juce::AudioBuffer<float> mCircularBuffer;
-    juce::LinearSmoothedValue<float> mSmoothedTimeInSeconds;
+   juce::LinearSmoothedValue<float> mSmoothedTimeInSeconds;
     
     //using LinearInterpolator = juce::Interpolators::Linear;
  
-    
+     
     float mSampleRate;
-    
-    
- };
+        
+ 
+};
 
 #endif /* Delay_h */
 
