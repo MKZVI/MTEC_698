@@ -9,6 +9,7 @@
 #include "ProcessorInterface.h"
 #include "FolderManager.h"
 #include "ParameterManager.h"
+#include "PropertyManager.h"
 
 /* */
 PresetManager::PresetManager(ProcessorInterface* inInterface)

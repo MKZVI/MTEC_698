@@ -16,6 +16,7 @@
 #include "ParameterManager.h"
 #include "PresetManager.h"
 #include "ProcessorInterface.h"
+#include "PropertyManager.h"
 
 #define SIMPLE_SAMPLE_IN_STANDALONE 1
 
@@ -41,7 +42,10 @@ public:
     /* PROCESSOR INTERACE OVERRIDES*/
     ParameterManager* getParameterManager() override;
     PresetManager* getPresetManager() override;
+    PropertyManager* getPropertyManager() override;
     AudioProcessor* getAudioProcessor() override;
+    
+    
 
     //==============================================================================
     juce::AudioProcessorEditor* createEditor() override;
@@ -77,6 +81,7 @@ private:
     
     std::unique_ptr<ParameterManager> mParameterManager;
     std::unique_ptr<PresetManager> mPresetManager;
+    std::unique_ptr<PropertyManager> mPropertyManager;
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CoursePluginAudioProcessor)

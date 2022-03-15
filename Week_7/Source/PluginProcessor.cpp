@@ -17,6 +17,7 @@ CoursePluginAudioProcessor::CoursePluginAudioProcessor()
 {
     mParameterManager.reset(new ParameterManager(this));
     mPresetManager.reset(new PresetManager(this));
+    mPropertyManager.reset(new PropertyManager(this));
 }
 
 CoursePluginAudioProcessor::~CoursePluginAudioProcessor()
@@ -162,6 +163,12 @@ PresetManager* CoursePluginAudioProcessor::getPresetManager()
 {
     return mPresetManager.get();
 }
+
+PropertyManager* CoursePluginAudioProcessor::getPropertyManager()
+{
+    return mPropertyManager.get();
+}
+
 
 AudioProcessor* CoursePluginAudioProcessor::getAudioProcessor()
 {

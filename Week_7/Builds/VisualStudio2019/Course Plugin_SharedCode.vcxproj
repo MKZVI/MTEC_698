@@ -141,6 +141,7 @@
     <ClCompile Include="..\..\Source\DSP\Samples\InMemorySample.cpp"/>
     <ClCompile Include="..\..\Source\DSP\Samples\SampleBase.cpp"/>
     <ClCompile Include="..\..\Source\DSP\Time Based\Delay.cpp"/>
+    <ClCompile Include="..\..\..\..\..\Documents\PropertyManager.cpp"/>
     <ClCompile Include="..\..\Source\Managers\Folder Manager\FolderManager.cpp"/>
     <ClCompile Include="..\..\Source\Managers\Parameter Manager\ParameterManager.cpp"/>
     <ClCompile Include="..\..\Source\Managers\Preset Manager\PresetManager.cpp"/>
@@ -2215,6 +2216,7 @@
     <ClInclude Include="..\..\Source\DSP\Samples\SampleBase.h"/>
     <ClInclude Include="..\..\Source\DSP\Time Based\Delay.h"/>
     <ClInclude Include="..\..\Source\DSP\AudioHelpers.h"/>
+    <ClInclude Include="..\..\..\..\..\Documents\PropertyManager.h"/>
     <ClInclude Include="..\..\Source\Managers\Folder Manager\FolderManager.h"/>
     <ClInclude Include="..\..\Source\Managers\Interfaces\ProcessorInterface.h"/>
     <ClInclude Include="..\..\Source\Managers\Parameter Manager\ParameterDefines.h"/>

@@ -14,6 +14,9 @@
     <Filter Include="Course Plugin\Source\DSP">
       <UniqueIdentifier>{0DB53752-5B65-2138-79E9-DE641CEBFD12}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Course Plugin\Source\Managers\PropertyManager">
+      <UniqueIdentifier>{ACE07299-20FF-2DCC-2C3C-3B9FB238D801}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Course Plugin\Source\Managers\Folder Manager">
       <UniqueIdentifier>{CBEF7E71-FDAB-D178-13D7-086B1AA68089}</UniqueIdentifier>
     </Filter>
@@ -510,6 +513,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\DSP\Time Based\Delay.cpp">
       <Filter>Course Plugin\Source\DSP\Time Based</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Documents\PropertyManager.cpp">
+      <Filter>Course Plugin\Source\Managers\PropertyManager</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Managers\Folder Manager\FolderManager.cpp">
       <Filter>Course Plugin\Source\Managers\Folder Manager</Filter>
@@ -2759,6 +2765,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\DSP\AudioHelpers.h">
       <Filter>Course Plugin\Source\DSP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Documents\PropertyManager.h">
+      <Filter>Course Plugin\Source\Managers\PropertyManager</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Managers\Folder Manager\FolderManager.h">
       <Filter>Course Plugin\Source\Managers\Folder Manager</Filter>
