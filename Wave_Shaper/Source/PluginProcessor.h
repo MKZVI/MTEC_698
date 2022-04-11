@@ -23,13 +23,13 @@
 //==============================================================================
 /**
 */
-class CoursePluginAudioProcessor  : public juce::AudioProcessor,
+class WaveShaperAudioProcessor  : public juce::AudioProcessor,
                                     public ProcessorInterface
 {
 public:
     //==============================================================================
-    CoursePluginAudioProcessor();
-    ~CoursePluginAudioProcessor() override;
+    WaveShaperAudioProcessor();
+    ~WaveShaperAudioProcessor() override;
 
     //==============================================================================
 
@@ -72,9 +72,6 @@ private:
     
     void _generateSimpleSample(AudioBuffer<float>& inBuffer);
     
-    Delay mDelayLeft;
-    Delay mDelayRight;
-    
 #if SIMPLE_SAMPLE_IN_STANDALONE
     InMemorySample mTestingSample;
 #endif
@@ -84,5 +81,5 @@ private:
     std::unique_ptr<PropertyManager> mPropertyManager;
     
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CoursePluginAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveShaperAudioProcessor)
 };

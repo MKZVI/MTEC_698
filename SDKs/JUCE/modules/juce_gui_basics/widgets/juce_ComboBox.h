@@ -420,14 +420,11 @@ public:
     /** @internal */
     void parentHierarchyChanged() override;
 
-    //==============================================================================
-   #ifndef DOXYGEN
     // These methods' bool parameters have changed: see their new method signatures.
-    [[deprecated]] void clear (bool);
-    [[deprecated]] void setSelectedId (int, bool);
-    [[deprecated]] void setSelectedItemIndex (int, bool);
-    [[deprecated]] void setText (const String&, bool);
-   #endif
+    JUCE_DEPRECATED (void clear (bool));
+    JUCE_DEPRECATED (void setSelectedId (int, bool));
+    JUCE_DEPRECATED (void setSelectedItemIndex (int, bool));
+    JUCE_DEPRECATED (void setText (const String&, bool));
 
 private:
     //==============================================================================

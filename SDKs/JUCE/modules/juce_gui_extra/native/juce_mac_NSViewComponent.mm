@@ -44,7 +44,7 @@ struct NSViewFrameChangeCallbackClass   : public ObjCClass<NSObject>
     {
         addIvar<NSViewCallbackInterface*> ("target");
 
-        addMethod (nsViewFrameChangedSelector, frameChanged);
+        addMethod (nsViewFrameChangedSelector, frameChanged, "v@:@");
 
         registerClass();
     }

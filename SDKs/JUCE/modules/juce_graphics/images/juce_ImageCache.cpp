@@ -29,10 +29,10 @@ namespace juce
 struct ImageCache::Pimpl     : private Timer,
                                private DeletedAtShutdown
 {
-    Pimpl() = default;
+    Pimpl() {}
     ~Pimpl() override { clearSingletonInstance(); }
 
-    JUCE_DECLARE_SINGLETON (ImageCache::Pimpl, false)
+    JUCE_DECLARE_SINGLETON_SINGLETHREADED_MINIMAL (ImageCache::Pimpl)
 
     Image getFromHashCode (const int64 hashCode) noexcept
     {

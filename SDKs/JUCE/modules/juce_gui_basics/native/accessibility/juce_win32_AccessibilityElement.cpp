@@ -264,9 +264,10 @@ JUCE_COMRESULT AccessibilityNativeHandle::GetPropertyValue (PROPERTYID propertyI
     {
         VariantHelpers::clear (pRetVal);
 
-        const auto role    = accessibilityHandler.getRole();
-        const auto state   = accessibilityHandler.getCurrentState();
-        const auto ignored = accessibilityHandler.isIgnored();
+        const auto fragmentRoot = isFragmentRoot();
+
+        const auto role = accessibilityHandler.getRole();
+        const auto state = accessibilityHandler.getCurrentState();
 
         switch (propertyId)
         {
@@ -286,7 +287,7 @@ JUCE_COMRESULT AccessibilityNativeHandle::GetPropertyValue (PROPERTYID propertyI
                 VariantHelpers::setString (accessibilityHandler.getHelp(), pRetVal);
                 break;
             case UIA_IsContentElementPropertyId:
-                VariantHelpers::setBool (! ignored && accessibilityHandler.isVisibleWithinParent(),
+                VariantHelpers::setBool (! accessibilityHandler.isIgnored() && accessibilityHandler.isVisibleWithinParent(),
                                          pRetVal);
                 break;
             case UIA_IsControlElementPropertyId:
@@ -319,15 +320,13 @@ JUCE_COMRESULT AccessibilityNativeHandle::GetPropertyValue (PROPERTYID propertyI
                                          pRetVal);
                 break;
             case UIA_NamePropertyId:
-                if (! ignored)
-                     VariantHelpers::setString (getElementName(), pRetVal);
-
+                VariantHelpers::setString (getElementName(), pRetVal);
                 break;
             case UIA_ProcessIdPropertyId:
                 VariantHelpers::setInt ((int) GetCurrentProcessId(), pRetVal);
                 break;
             case UIA_NativeWindowHandlePropertyId:
-                if (isFragmentRoot())
+                if (fragmentRoot)
                     VariantHelpers::setInt ((int) (pointer_sized_int) accessibilityHandler.getComponent().getWindowHandle(), pRetVal);
 
                 break;

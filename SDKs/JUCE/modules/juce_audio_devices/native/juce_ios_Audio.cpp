@@ -25,13 +25,7 @@ namespace juce
 
 class iOSAudioIODevice;
 
-constexpr const char* const iOSAudioDeviceName = "iOS Audio";
-
-#ifndef JUCE_IOS_AUDIO_EXPLICIT_SAMPLERATES
- #define JUCE_IOS_AUDIO_EXPLICIT_SAMPLERATES
-#endif
-
-constexpr std::initializer_list<double> iOSExplicitSampleRates { JUCE_IOS_AUDIO_EXPLICIT_SAMPLERATES };
+static const char* const iOSAudioDeviceName = "iOS Audio";
 
 //==============================================================================
 struct AudioSessionHolder
@@ -64,8 +58,6 @@ static const char* getRoutingChangeReason (AVAudioSessionRouteChangeReason reaso
     }
 }
 
-JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wmissing-prototypes")
-
 bool getNotificationValueForKey (NSNotification* notification, NSString* key, NSUInteger& value) noexcept
 {
     if (notification != nil)
@@ -83,8 +75,6 @@ bool getNotificationValueForKey (NSNotification* notification, NSString* key, NS
     jassertfalse;
     return false;
 }
-
-JUCE_END_IGNORE_WARNINGS_GCC_LIKE
 
 } // namespace juce
 
@@ -288,15 +278,9 @@ struct iOSAudioIODevice::Pimpl      : public AudioPlayHead,
        #endif
 
         if (category == AVAudioSessionCategoryPlayAndRecord)
-        {
             options |= (AVAudioSessionCategoryOptionDefaultToSpeaker
-                      | AVAudioSessionCategoryOptionAllowBluetooth);
-
-           #if defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
-            if (@available (iOS 10.0, *))
-                options |= AVAudioSessionCategoryOptionAllowBluetoothA2DP;
-           #endif
-        }
+                      | AVAudioSessionCategoryOptionAllowBluetooth
+                      | AVAudioSessionCategoryOptionAllowBluetoothA2DP);
 
         JUCE_NSERROR_CHECK ([[AVAudioSession sharedInstance] setCategory: category
                                                              withOptions: options
@@ -372,12 +356,6 @@ struct iOSAudioIODevice::Pimpl      : public AudioPlayHead,
     // depending on whether the headphones are plugged in or not!
     void updateAvailableSampleRates()
     {
-        if (iOSExplicitSampleRates.size() != 0)
-        {
-            availableSampleRates = Array<double> (iOSExplicitSampleRates);
-            return;
-        }
-
         availableSampleRates.clear();
 
         AudioUnitRemovePropertyListenerWithUserData (audioUnit,
@@ -722,20 +700,11 @@ struct iOSAudioIODevice::Pimpl      : public AudioPlayHead,
                                             &dataSize);
         if (err == noErr)
         {
-           #if defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
-            if (@available (iOS 10.0, *))
-            {
-                [[UIApplication sharedApplication] openURL: (NSURL*) hostUrl
-                                                   options: @{}
-                                         completionHandler: nil];
-
-                return;
-            }
+           #if (! defined __IPHONE_10_0) || (__IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_10_0)
+            [[UIApplication sharedApplication] openURL: (NSURL*)hostUrl];
+           #else
+            [[UIApplication sharedApplication] openURL: (NSURL*)hostUrl options: @{} completionHandler: nil];
            #endif
-
-            JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wdeprecated-declarations")
-            [[UIApplication sharedApplication] openURL: (NSURL*) hostUrl];
-            JUCE_END_IGNORE_WARNINGS_GCC_LIKE
         }
     }
 

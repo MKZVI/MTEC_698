@@ -26,29 +26,31 @@
 namespace juce
 {
 
-class ValueTreePropertyWithDefaultTests  : public UnitTest
+#if JUCE_UNIT_TESTS
+
+class ValueWithDefaultTests  : public UnitTest
 {
 public:
-    ValueTreePropertyWithDefaultTests()
-        : UnitTest ("ValueTreePropertyWithDefault", UnitTestCategories::values)
+    ValueWithDefaultTests()
+        : UnitTest ("ValueWithDefault", UnitTestCategories::values)
     {}
 
     void runTest() override
     {
         beginTest ("default constructor");
         {
-            ValueTreePropertyWithDefault value;
-            expect (value.isUsingDefault());
-            expect (value.get() == var());
+            ValueWithDefault vwd;
+            expect (vwd.isUsingDefault());
+            expect (vwd.get() == var());
         }
 
         beginTest ("missing property");
         {
             ValueTree t ("root");
-            ValueTreePropertyWithDefault value (t, "testKey", nullptr, "default");
+            ValueWithDefault vwd (t, "testKey", nullptr, "default");
 
-            expect (value.isUsingDefault());
-            expectEquals (value.get().toString(), String ("default"));
+            expect (vwd.isUsingDefault());
+            expectEquals (vwd.get().toString(), String ("default"));
         }
 
         beginTest ("non-empty property");
@@ -56,21 +58,21 @@ public:
             ValueTree t ("root");
             t.setProperty ("testKey", "non-default", nullptr);
 
-            ValueTreePropertyWithDefault value (t, "testKey", nullptr, "default");
+            ValueWithDefault vwd (t, "testKey", nullptr, "default");
 
-            expect (! value.isUsingDefault());
-            expectEquals (value.get().toString(), String ("non-default"));
+            expect (! vwd.isUsingDefault());
+            expectEquals (vwd.get().toString(), String ("non-default"));
         }
 
         beginTest ("set default");
         {
             ValueTree t ("root");
 
-            ValueTreePropertyWithDefault value (t, "testkey", nullptr);
-            value.setDefault ("default");
+            ValueWithDefault vwd (t, "testkey", nullptr);
+            vwd.setDefault ("default");
 
-            expect (value.isUsingDefault());
-            expectEquals (value.get().toString(), String ("default"));
+            expect (vwd.isUsingDefault());
+            expectEquals (vwd.get().toString(), String ("default"));
         }
 
         beginTest ("set value");
@@ -78,20 +80,22 @@ public:
             ValueTree t ("root");
             t.setProperty ("testkey", "testvalue", nullptr);
 
-            ValueTreePropertyWithDefault value (t, "testkey", nullptr, "default");
-            value = "newvalue";
+            ValueWithDefault vwd (t, "testkey", nullptr, "default");
+            vwd = "newvalue";
 
-            expect (! value.isUsingDefault());
+            expect (! vwd.isUsingDefault());
             expectEquals (t["testkey"].toString(), String ("newvalue"));
 
-            value.resetToDefault();
+            vwd.resetToDefault();
 
-            expect (value.isUsingDefault());
+            expect (vwd.isUsingDefault());
             expect (t["testkey"] == var());
         }
     }
 };
 
-static ValueTreePropertyWithDefaultTests valueTreePropertyWithDefaultTests;
+static ValueWithDefaultTests valueWithDefaultTests;
+
+#endif
 
 } // namespace juce

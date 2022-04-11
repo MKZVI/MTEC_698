@@ -47,49 +47,53 @@ struct SingletonHolder  : private MutexType // (inherited so we can use the empt
            If you're having trouble cleaning up your singletons, perhaps consider using the
            SharedResourcePointer class instead.
         */
-        jassert (instance.load() == nullptr);
+        jassert (instance == nullptr);
     }
 
     /** Returns the current instance, or creates a new instance if there isn't one. */
     Type* get()
     {
-        if (auto* ptr = instance.load())
-            return ptr;
-
-        typename MutexType::ScopedLockType sl (*this);
-
-        if (auto* ptr = instance.load())
-            return ptr;
-
-        auto once = onlyCreateOncePerRun; // (local copy avoids VS compiler warning about this being constant)
-
-        if (once)
+        if (instance == nullptr)
         {
-            static bool createdOnceAlready = false;
+            typename MutexType::ScopedLockType sl (*this);
 
-            if (createdOnceAlready)
+            if (instance == nullptr)
             {
-                // This means that the doNotRecreateAfterDeletion flag was set
-                // and you tried to create the singleton more than once.
-                jassertfalse;
-                return nullptr;
+                auto once = onlyCreateOncePerRun; // (local copy avoids VS compiler warning about this being constant)
+
+                if (once)
+                {
+                    static bool createdOnceAlready = false;
+
+                    if (createdOnceAlready)
+                    {
+                        // This means that the doNotRecreateAfterDeletion flag was set
+                        // and you tried to create the singleton more than once.
+                        jassertfalse;
+                        return nullptr;
+                    }
+
+                    createdOnceAlready = true;
+                }
+
+                static bool alreadyInside = false;
+
+                if (alreadyInside)
+                {
+                    // This means that your object's constructor has done something which has
+                    // ended up causing a recursive loop of singleton creation..
+                    jassertfalse;
+                }
+                else
+                {
+                    alreadyInside = true;
+                    getWithoutChecking();
+                    alreadyInside = false;
+                }
             }
-
-            createdOnceAlready = true;
         }
 
-        static bool alreadyInside = false;
-
-        if (alreadyInside)
-        {
-            // This means that your object's constructor has done something which has
-            // ended up causing a recursive loop of singleton creation.
-            jassertfalse;
-            return nullptr;
-        }
-
-        const ScopedValueSetter<bool> scope (alreadyInside, true);
-        return getWithoutChecking();
+        return instance;
     }
 
     /** Returns the current instance, or creates a new instance if there isn't one, but doesn't do
@@ -97,30 +101,32 @@ struct SingletonHolder  : private MutexType // (inherited so we can use the empt
     */
     Type* getWithoutChecking()
     {
-        if (auto* p = instance.load())
-            return p;
+        if (instance == nullptr)
+        {
+            auto newObject = new Type(); // (create into a local so that instance is still null during construction)
+            instance = newObject;
+        }
 
-        auto* newObject = new Type(); // (create into a local so that instance is still null during construction)
-        instance.store (newObject);
-        return newObject;
+        return instance;
     }
 
     /** Deletes and resets the current instance, if there is one. */
     void deleteInstance()
     {
         typename MutexType::ScopedLockType sl (*this);
-        delete instance.exchange (nullptr);
+        auto old = instance;
+        instance = nullptr;
+        delete old;
     }
 
     /** Called by the class's destructor to clear the pointer if it is currently set to the given object. */
     void clear (Type* expectedObject) noexcept
     {
-        instance.compare_exchange_strong (expectedObject, nullptr);
+        if (instance == expectedObject)
+            instance = nullptr;
     }
 
-    // This must be atomic, otherwise a late call to get() may attempt to read instance while it is
-    // being modified by the very first call to get().
-    std::atomic<Type*> instance { nullptr };
+    Type* instance = nullptr;
 };
 
 

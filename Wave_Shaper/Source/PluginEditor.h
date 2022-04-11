@@ -15,14 +15,14 @@
 //==============================================================================
 /**
 */
-class CoursePluginAudioProcessorEditor  : public juce::AudioProcessorEditor
+class WaveShaperAudioProcessorEditor  : public juce::AudioProcessorEditor
 {
 public:
     
     // We see our processor comes into this editor class throug it's constructor
-    CoursePluginAudioProcessorEditor (CoursePluginAudioProcessor&);
+    WaveShaperAudioProcessorEditor (WaveShaperAudioProcessor&);
     
-    ~CoursePluginAudioProcessorEditor() override;
+    ~WaveShaperAudioProcessorEditor() override;
 
     
     /*
@@ -55,7 +55,7 @@ private:
     
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
-    CoursePluginAudioProcessor& audioProcessor;
+    WaveShaperAudioProcessor& audioProcessor;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CoursePluginAudioProcessorEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveShaperAudioProcessorEditor)
 };

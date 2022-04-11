@@ -26,7 +26,7 @@
 namespace juce
 {
 
-#if ! (defined (__IPHONE_16_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_16_0)
+#if ! (defined (__IPHONE_16_0) && __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_16_0)
  JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wdeprecated-declarations")
  #define JUCE_DEPRECATION_IGNORED 1
 #endif
@@ -87,8 +87,6 @@ public:
         {
             controller.reset ([controllerClassInstance initWithDocumentTypes: utTypeArray
                                                                       inMode: UIDocumentPickerModeOpen]);
-            if (@available (iOS 11.0, *))
-                [controller.get() setAllowsMultipleSelection: (flags & FileBrowserComponent::canSelectMultipleItems) != 0];
         }
 
         FileChooserControllerClass::setOwner (controller.get(), this);
@@ -226,47 +224,37 @@ private:
     }
 
     //==============================================================================
-    void didPickDocumentsAtURLs (NSArray<NSURL*>* urls)
+    void didPickDocumentAtURL (NSURL* url)
     {
         cancelPendingUpdate();
 
-        const auto isWriting =  controller.get().documentPickerMode == UIDocumentPickerModeExportToService
-                             || controller.get().documentPickerMode == UIDocumentPickerModeMoveToService;
-        const auto accessOptions = isWriting ? 0 : NSFileCoordinatorReadingWithoutChanges;
+        bool isWriting = controller.get().documentPickerMode == UIDocumentPickerModeExportToService
+                       | controller.get().documentPickerMode == UIDocumentPickerModeMoveToService;
 
-        auto* fileCoordinator = [[[NSFileCoordinator alloc] initWithFilePresenter: nil] autorelease];
-        auto* intents = [[[NSMutableArray alloc] init] autorelease];
+        NSUInteger accessOptions = isWriting ? 0 : NSFileCoordinatorReadingWithoutChanges;
 
-        for (NSURL* url in urls)
-        {
-            auto* fileAccessIntent = isWriting
-                                   ? [NSFileAccessIntent writingIntentWithURL: url options: accessOptions]
-                                   : [NSFileAccessIntent readingIntentWithURL: url options: accessOptions];
-            [intents addObject: fileAccessIntent];
-        }
+        auto* fileAccessIntent = isWriting
+                               ? [NSFileAccessIntent writingIntentWithURL: url options: accessOptions]
+                               : [NSFileAccessIntent readingIntentWithURL: url options: accessOptions];
+
+        NSArray<NSFileAccessIntent*>* intents = @[fileAccessIntent];
+
+        auto fileCoordinator = [[[NSFileCoordinator alloc] initWithFilePresenter: nil] autorelease];
 
         [fileCoordinator coordinateAccessWithIntents: intents queue: [NSOperationQueue mainQueue] byAccessor: ^(NSError* err)
         {
-            if (err != nil)
-            {
-                auto desc = [err localizedDescription];
-                ignoreUnused (desc);
-                jassertfalse;
-                return;
-            }
+            Array<URL> chooserResults;
 
-            Array<URL> result;
-
-            for (NSURL* url in urls)
+            if (err == nil)
             {
                 [url startAccessingSecurityScopedResource];
 
                 NSError* error = nil;
 
-                auto* bookmark = [url bookmarkDataWithOptions: 0
-                               includingResourceValuesForKeys: nil
-                                                relativeToURL: nil
-                                                        error: &error];
+                NSData* bookmark = [url bookmarkDataWithOptions: 0
+                                 includingResourceValuesForKeys: nil
+                                                  relativeToURL: nil
+                                                          error: &error];
 
                 [bookmark retain];
 
@@ -285,16 +273,17 @@ private:
                     jassertfalse;
                 }
 
-                result.add (std::move (juceUrl));
+                chooserResults.add (juceUrl);
+            }
+            else
+            {
+                auto desc = [err localizedDescription];
+                ignoreUnused (desc);
+                jassertfalse;
             }
 
-            owner.finished (std::move (result));
+            owner.finished (chooserResults);
         }];
-    }
-
-    void didPickDocumentAtURL (NSURL* url)
-    {
-        didPickDocumentsAtURLs (@[url]);
     }
 
     void pickerWasCancelled()
@@ -312,9 +301,8 @@ private:
         {
             addIvar<Native*> ("owner");
 
-            addMethod (@selector (documentPicker:didPickDocumentAtURL:),   didPickDocumentAtURL);
-            addMethod (@selector (documentPicker:didPickDocumentsAtURLs:), didPickDocumentsAtURLs);
-            addMethod (@selector (documentPickerWasCancelled:),            documentPickerWasCancelled);
+            addMethod (@selector (documentPicker:didPickDocumentAtURL:), didPickDocumentAtURL,       "v@:@@");
+            addMethod (@selector (documentPickerWasCancelled:),          documentPickerWasCancelled, "v@:@");
 
             addProtocol (@protocol (UIDocumentPickerDelegate));
 
@@ -331,12 +319,6 @@ private:
                 picker->didPickDocumentAtURL (url);
         }
 
-        static void didPickDocumentsAtURLs (id self, SEL, UIDocumentPickerViewController*, NSArray<NSURL*>* urls)
-        {
-            if (auto* picker = getOwner (self))
-                picker->didPickDocumentsAtURLs (urls);
-        }
-
         static void documentPickerWasCancelled (id self, SEL, UIDocumentPickerViewController*)
         {
             if (auto* picker = getOwner (self))
@@ -349,7 +331,7 @@ private:
         FileChooserControllerClass()  : ObjCClass<UIDocumentPickerViewController> ("FileChooserController_")
         {
             addIvar<Native*> ("owner");
-            addMethod (@selector (viewDidDisappear:), viewDidDisappear);
+            addMethod (@selector (viewDidDisappear:), viewDidDisappear, "v@:@c");
 
             registerClass();
         }
@@ -399,5 +381,7 @@ std::shared_ptr<FileChooser::Pimpl> FileChooser::showPlatformDialog (FileChooser
 #if JUCE_DEPRECATION_IGNORED
  JUCE_END_IGNORE_WARNINGS_GCC_LIKE
 #endif
+
+#undef JUCE_DEPRECATION_IGNORED
 
 } // namespace juce

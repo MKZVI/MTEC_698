@@ -67,16 +67,8 @@ public:
         }
     }
 
-    void setMouseIsOverButton (bool isOver)
-    {
-        mouseIsOverButton = isOver;
-        repaint();
-    }
-
-    TreeViewItem& getRepresentedItem() const noexcept
-    {
-        return item;
-    }
+    void setMouseIsOverButton (bool isOver)            { mouseIsOverButton = isOver; }
+    TreeViewItem& getRepresentedItem() const noexcept  { return item; }
 
 private:
     //==============================================================================
@@ -322,66 +314,44 @@ public:
 
     void updateComponents()
     {
-        std::set<ItemComponent*> componentsToKeep;
+        std::vector<ItemComponent*> componentsToKeep;
 
         for (auto* treeItem : getAllVisibleItems())
         {
             if (auto* itemComp = getComponentForItem (treeItem))
             {
-                componentsToKeep.insert (itemComp);
+                componentsToKeep.push_back (itemComp);
             }
             else
             {
                 auto newComp = std::make_unique<ItemComponent> (*treeItem);
 
                 addAndMakeVisible (*newComp);
-                newComp->addMouseListener (this, false);
-                componentsToKeep.insert (newComp.get());
+                newComp->addMouseListener (this, true);
+                componentsToKeep.push_back (newComp.get());
 
                 itemComponents.push_back (std::move (newComp));
             }
         }
 
-        auto removePredicate = [&] (auto& item)
+        for (int i = (int) itemComponents.size(); --i >= 0;)
         {
-            if (item == nullptr)
-                return true;
+            auto& comp = itemComponents[(size_t) i];
 
-            return componentsToKeep.find (item.get()) == componentsToKeep.end()
-                    && ! isMouseDraggingInChildComp (*item);
-        };
-
-        const auto iter = std::remove_if (itemComponents.begin(), itemComponents.end(), std::move (removePredicate));
-        itemComponents.erase (iter, itemComponents.end());
-
-        for (auto& comp : itemComponents)
-        {
-            auto& treeItem = comp->getRepresentedItem();
-            comp->setBounds ({ 0, treeItem.y, getWidth(), treeItem.itemHeight });
+            if (std::find (componentsToKeep.cbegin(), componentsToKeep.cend(), comp.get())
+                  != componentsToKeep.cend())
+            {
+                auto& treeItem = comp->getRepresentedItem();
+                comp->setBounds ({ 0, treeItem.y, getWidth(), treeItem.itemHeight });
+            }
+            else
+            {
+                itemComponents.erase (itemComponents.begin() + i);
+            }
         }
     }
 
 private:
-    //==============================================================================
-    struct ScopedDisableViewportScroll
-    {
-        explicit ScopedDisableViewportScroll (ItemComponent& c)
-            : item (&c)
-        {
-            item->setViewportIgnoreDragFlag (true);
-        }
-
-        ~ScopedDisableViewportScroll()
-        {
-            if (item != nullptr)
-                item->setViewportIgnoreDragFlag (false);
-        }
-
-        SafePointer<ItemComponent> item;
-
-        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ScopedDisableViewportScroll)
-    };
-
     //==============================================================================
     std::unique_ptr<AccessibilityHandler> createAccessibilityHandler() override
     {
@@ -393,7 +363,6 @@ private:
         updateItemUnderMouse (e);
 
         isDragging = false;
-        scopedScrollDisabler = nullptr;
         needSelectionOnMouseUp = false;
 
         if (! isEnabled())
@@ -476,17 +445,14 @@ private:
                         {
                             pos.setSize (pos.getWidth(), item.itemHeight);
 
-                            const auto additionalScale = 2.0f;
                             auto dragImage = Component::createComponentSnapshot (pos,
                                                                                  true,
-                                                                                 Component::getApproximateScaleFactorForComponent (itemComponent) * additionalScale);
+                                                                                 Component::getApproximateScaleFactorForComponent (itemComponent));
 
                             dragImage.multiplyAllAlphas (0.6f);
 
                             auto imageOffset = pos.getPosition() - e.getPosition();
-                            dragContainer->startDragging (dragDescription, &owner, { dragImage, additionalScale }, true, &imageOffset, &e.source);
-
-                            scopedScrollDisabler = std::make_unique<ScopedDisableViewportScroll> (*itemComponent);
+                            dragContainer->startDragging (dragDescription, &owner, dragImage, true, &imageOffset, &e.source);
                         }
                         else
                         {
@@ -515,34 +481,37 @@ private:
 
     void updateItemUnderMouse (const MouseEvent& e)
     {
-        if (! owner.openCloseButtonsVisible)
-            return;
+        ItemComponent* newItem = nullptr;
 
-        auto* newItem = [this, &e]() -> ItemComponent*
+        if (owner.openCloseButtonsVisible)
         {
             if (auto* itemComponent = getItemComponentAt (e.getPosition()))
             {
                 auto& item = itemComponent->getRepresentedItem();
+                auto pos = item.getItemPosition (false);
 
-                if (item.mightContainSubItems())
+                if (e.x < pos.getX()
+                    && e.x >= pos.getX() - owner.getIndentSize()
+                    && item.mightContainSubItems())
                 {
-                    const auto xPos = item.getItemPosition (false).getX();
-
-                    if (xPos - owner.getIndentSize() <= e.x && e.x < xPos)
-                        return itemComponent;
+                    newItem = itemComponent;
                 }
             }
-
-            return nullptr;
-        }();
+        }
 
         if (itemUnderMouse != newItem)
         {
-            if (itemUnderMouse != nullptr)
-                itemUnderMouse->setMouseIsOverButton (false);
+            auto updateItem = [] (ItemComponent* itemComp, bool isMouseOverButton)
+            {
+                if (itemComp != nullptr)
+                {
+                    itemComp->setMouseIsOverButton (isMouseOverButton);
+                    itemComp->repaint();
+                }
+            };
 
-            if (newItem != nullptr)
-                newItem->setMouseIsOverButton (true);
+            updateItem (itemUnderMouse, false);
+            updateItem (newItem, true);
 
             itemUnderMouse = newItem;
         }
@@ -656,7 +625,6 @@ private:
 
     std::vector<std::unique_ptr<ItemComponent>> itemComponents;
     ItemComponent* itemUnderMouse = nullptr;
-    std::unique_ptr<ScopedDisableViewportScroll> scopedScrollDisabler;
     bool isDragging = false, needSelectionOnMouseUp = false;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ContentComponent)
@@ -664,20 +632,36 @@ private:
 
 //==============================================================================
 class TreeView::TreeViewport  : public Viewport,
-                                private AsyncUpdater
+                                private Timer
 {
 public:
-    explicit TreeViewport (TreeView& treeView)  : owner (treeView)  {}
+    TreeViewport() = default;
+
+    void updateComponents (bool triggerResize)
+    {
+        if (auto* tvc = getContentComp())
+        {
+            if (triggerResize)
+                tvc->resized();
+            else
+                tvc->updateComponents();
+        }
+
+        repaint();
+    }
 
     void visibleAreaChanged (const Rectangle<int>& newVisibleArea) override
     {
         const auto hasScrolledSideways = (newVisibleArea.getX() != lastX);
-
         lastX = newVisibleArea.getX();
         updateComponents (hasScrolledSideways);
 
-        structureChanged = true;
-        triggerAsyncUpdate();
+        startTimer (50);
+    }
+
+    ContentComponent* getContentComp() const noexcept
+    {
+        return static_cast<ContentComponent*> (getViewedComponent());
     }
 
     bool keyPressed (const KeyPress& key) override
@@ -689,76 +673,22 @@ public:
         return Viewport::keyPressed (key);
     }
 
-    ContentComponent* getContentComp() const noexcept
-    {
-        return static_cast<ContentComponent*> (getViewedComponent());
-    }
-
-    enum class Async { yes, no };
-
-    void recalculatePositions (Async useAsyncUpdate)
-    {
-        needsRecalculating = true;
-
-        if (useAsyncUpdate == Async::yes)
-            triggerAsyncUpdate();
-        else
-            handleAsyncUpdate();
-    }
-
 private:
     std::unique_ptr<AccessibilityHandler> createAccessibilityHandler() override
     {
         return createIgnoredAccessibilityHandler (*this);
     }
 
-    void handleAsyncUpdate() override
+    void timerCallback() override
     {
-        if (structureChanged)
-        {
-            if (auto* handler = owner.getAccessibilityHandler())
+        stopTimer();
+
+        if (auto* tree = getParentComponent())
+            if (auto* handler = tree->getAccessibilityHandler())
                 handler->notifyAccessibilityEvent (AccessibilityEvent::structureChanged);
-
-            structureChanged = false;
-        }
-
-        if (needsRecalculating)
-        {
-            if (auto* root = owner.rootItem)
-            {
-                const auto startY = owner.rootItemVisible ? 0 : -root->itemHeight;
-
-                root->updatePositions (startY);
-                getViewedComponent()->setSize (jmax (getMaximumVisibleWidth(), root->totalWidth + 50),
-                                               root->totalHeight + startY);
-            }
-            else
-            {
-                getViewedComponent()->setSize (0, 0);
-            }
-
-            updateComponents (false);
-
-            needsRecalculating = false;
-        }
     }
 
-    void updateComponents (bool triggerResize)
-    {
-        if (auto* content = getContentComp())
-        {
-            if (triggerResize)
-                content->resized();
-            else
-                content->updateComponents();
-        }
-
-        repaint();
-    }
-
-    TreeView& owner;
     int lastX = -1;
-    bool structureChanged = false, needsRecalculating = false;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TreeViewport)
 };
@@ -766,7 +696,7 @@ private:
 //==============================================================================
 TreeView::TreeView (const String& name)  : Component (name)
 {
-    viewport = std::make_unique<TreeViewport> (*this);
+    viewport = std::make_unique<TreeViewport>();
     addAndMakeVisible (viewport.get());
     viewport->setViewedComponent (new ContentComponent (*this));
 
@@ -807,7 +737,7 @@ void TreeView::setRootItem (TreeViewItem* const newRootItem)
             rootItem->setOpen (true);
         }
 
-        viewport->recalculatePositions (TreeViewport::Async::no);
+        updateVisibleItems();
     }
 }
 
@@ -1167,7 +1097,20 @@ bool TreeView::keyPressed (const KeyPress& key)
 
 void TreeView::updateVisibleItems()
 {
-    viewport->recalculatePositions (TreeViewport::Async::yes);
+    if (rootItem != nullptr)
+    {
+        rootItem->updatePositions (rootItemVisible ? 0 : -rootItem->itemHeight);
+
+        viewport->getViewedComponent()
+            ->setSize (jmax (viewport->getMaximumVisibleWidth(), rootItem->totalWidth + 50),
+                       rootItem->totalHeight - (rootItemVisible ? 0 : rootItem->itemHeight));
+    }
+    else
+    {
+        viewport->getViewedComponent()->setSize (0, 0);
+    }
+
+    viewport->updateComponents (false);
 }
 
 //==============================================================================
@@ -1831,9 +1774,6 @@ void TreeViewItem::setOwnerView (TreeView* const newOwner) noexcept
 
 int TreeViewItem::getIndentX() const noexcept
 {
-    if (ownerView == nullptr)
-        return 0;
-
     int x = ownerView->rootItemVisible ? 1 : 0;
 
     if (! ownerView->openCloseButtonsVisible)
@@ -2113,9 +2053,6 @@ TreeViewItem::OpennessRestorer::~OpennessRestorer()
 
 void TreeViewItem::draw (Graphics& g, int width, bool isMouseOverButton)
 {
-    if (ownerView == nullptr)
-        return;
-
     const auto indent = getIndentX();
     const auto itemW = (itemWidth < 0 || drawsInRightMargin) ? width - indent : itemWidth;
 

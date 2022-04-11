@@ -99,16 +99,8 @@ static MaxNumFileHandlesInitialiser maxNumFileHandlesInitialiser;
 #endif
 
 //==============================================================================
-#if JUCE_ALLOW_STATIC_NULL_VARIABLES
-
-JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wdeprecated-declarations")
-
-const juce_wchar File::separator = '/';
-const StringRef File::separatorString ("/");
-
-JUCE_END_IGNORE_WARNINGS_GCC_LIKE
-
-#endif
+JUCE_DECLARE_DEPRECATED_STATIC (const juce_wchar File::separator = '/';)
+JUCE_DECLARE_DEPRECATED_STATIC (const StringRef File::separatorString ("/");)
 
 juce_wchar File::getSeparatorChar()    { return '/'; }
 StringRef File::getSeparatorString()   { return "/"; }
@@ -960,12 +952,7 @@ void JUCE_CALLTYPE Thread::setCurrentThreadName (const String& name)
 bool Thread::setThreadPriority (void* handle, int priority)
 {
     constexpr auto maxInputPriority = 10;
-
-   #if JUCE_LINUX || JUCE_BSD
-    constexpr auto lowestRrPriority = 8;
-   #else
-    constexpr auto lowestRrPriority = 0;
-   #endif
+    constexpr auto lowestRealtimePriority = 8;
 
     struct sched_param param;
     int policy;
@@ -976,7 +963,7 @@ bool Thread::setThreadPriority (void* handle, int priority)
     if (pthread_getschedparam ((pthread_t) handle, &policy, &param) != 0)
         return false;
 
-    policy = priority < lowestRrPriority ? SCHED_OTHER : SCHED_RR;
+    policy = priority < lowestRealtimePriority ? SCHED_OTHER : SCHED_RR;
 
     const auto minPriority = sched_get_priority_min (policy);
     const auto maxPriority = sched_get_priority_max (policy);
@@ -986,7 +973,7 @@ bool Thread::setThreadPriority (void* handle, int priority)
         if (policy == SCHED_OTHER)
             return 0;
 
-        return jmap (priority, lowestRrPriority, maxInputPriority, minPriority, maxPriority);
+        return jmap (priority, lowestRealtimePriority, maxInputPriority, minPriority, maxPriority);
     }();
 
     return pthread_setschedparam ((pthread_t) handle, policy, &param) == 0;
@@ -1373,7 +1360,7 @@ private:
         mach_timebase_info (&timebase);
 
         const auto ticksPerMs = ((double) timebase.denom * 1000000.0) / (double) timebase.numer;
-        const auto periodTicks = (uint32_t) jmin ((double) std::numeric_limits<uint32_t>::max(), periodMs * ticksPerMs);
+        const auto periodTicks = (uint32_t) (ticksPerMs * periodMs);
 
         thread_time_constraint_policy_data_t policy;
         policy.period      = periodTicks;

@@ -276,8 +276,6 @@ public:
             bufferingReader.setReadTimeout (10);
 
             AudioBuffer<float> readBuffer { 2, 1024 };
-
-            readBuffer.clear();
             read (bufferingReader, readBuffer);
 
             expect (isSilent (readBuffer));

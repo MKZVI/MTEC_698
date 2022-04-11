@@ -45,6 +45,9 @@ public:
     /** Creates an empty MidiFile object. */
     MidiFile();
 
+    /** Destructor. */
+    ~MidiFile();
+
     /** Creates a copy of another MidiFile. */
     MidiFile (const MidiFile&);
 

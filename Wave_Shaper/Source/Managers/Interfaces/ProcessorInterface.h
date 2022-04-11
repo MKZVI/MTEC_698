@@ -1,6 +1,6 @@
 //
 //  ProcessorInterface.h
-//  Course Plugin
+//  Wave Shaper
 //
 //  Created by Jacob Penn on 3/8/22.
 //

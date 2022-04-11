@@ -47,10 +47,7 @@ AlertWindow::AlertWindow (const String& title,
 {
     setAlwaysOnTop (juce_areThereAnyAlwaysOnTopWindows());
 
-    accessibleMessageLabel.setColour (Label::textColourId,       Colours::transparentBlack);
-    accessibleMessageLabel.setColour (Label::backgroundColourId, Colours::transparentBlack);
-    accessibleMessageLabel.setColour (Label::outlineColourId,    Colours::transparentBlack);
-    accessibleMessageLabel.setInterceptsMouseClicks (false, false);
+    accessibleMessageLabel.setColour (Label::textColourId, Colours::transparentBlack);
     addAndMakeVisible (accessibleMessageLabel);
 
     if (message.isEmpty())
@@ -652,7 +649,6 @@ namespace AlertWindowMappings
 
         return rawToUniquePtr (ModalCallbackFunction::create (std::move (wrappedCallback)));
     }
-
 }
 
 #if JUCE_MODAL_LOOPS_PERMITTED

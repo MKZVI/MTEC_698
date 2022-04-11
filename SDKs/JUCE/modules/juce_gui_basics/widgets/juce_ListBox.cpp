@@ -26,7 +26,7 @@
 namespace juce
 {
 
-template <typename RowComponentType>
+template<typename RowComponentType>
 static AccessibilityActions getListRowAccessibilityActions (RowComponentType& rowComponent)
 {
     auto onFocus = [&rowComponent]
@@ -90,13 +90,14 @@ public:
                 addAndMakeVisible (customComponent.get());
                 customComponent->setBounds (getLocalBounds());
 
-                setFocusContainerType (FocusContainerType::focusContainer);
-            }
-            else
-            {
-                setFocusContainerType (FocusContainerType::none);
+                if (customComponent->getAccessibilityHandler() != nullptr)
+                    invalidateAccessibilityHandler();
             }
         }
+
+        if (selectionHasChanged)
+            if (auto* handler = getAccessibilityHandler())
+                isSelected ? handler->grabFocus() : handler->giveAwayFocus();
     }
 
     void performSelection (const MouseEvent& e, bool isMouseUp)
@@ -267,6 +268,9 @@ public:
 
     std::unique_ptr<AccessibilityHandler> createAccessibilityHandler() override
     {
+        if (customComponent != nullptr && customComponent->getAccessibilityHandler() != nullptr)
+            return nullptr;
+
         return std::make_unique<RowAccessibilityHandler> (*this);
     }
 
@@ -295,23 +299,15 @@ public:
         setViewedComponent (content.release());
     }
 
-    RowComponent* getComponentForRow (int row) const noexcept
+    RowComponent* getComponentForRow (const int row) const noexcept
     {
-        if (isPositiveAndBelow (row, rows.size()))
-            return rows[row];
-
-        return nullptr;
+        return rows [row % jmax (1, rows.size())];
     }
 
-    RowComponent* getComponentForRowWrapped (int row) const noexcept
-    {
-        return rows[row % jmax (1, rows.size())];
-    }
-
-    RowComponent* getComponentForRowIfOnscreen (int row) const noexcept
+    RowComponent* getComponentForRowIfOnscreen (const int row) const noexcept
     {
         return (row >= firstIndex && row < firstIndex + rows.size())
-                 ? getComponentForRowWrapped (row) : nullptr;
+                 ? getComponentForRow (row) : nullptr;
     }
 
     int getRowNumberOfComponent (Component* const rowComponent) const noexcept
@@ -385,7 +381,7 @@ public:
             {
                 const int row = i + startIndex;
 
-                if (auto* rowComp = getComponentForRowWrapped (row))
+                if (auto* rowComp = getComponentForRow (row))
                 {
                     rowComp->setBounds (0, row * rowH, w, rowH);
                     rowComp->update (row, owner.isRowSelected (row));
@@ -1040,7 +1036,7 @@ void ListBox::repaintRow (const int rowNumber) noexcept
     repaint (getRowPosition (rowNumber, true));
 }
 
-ScaledImage ListBox::createSnapshotOfRows (const SparseSet<int>& rows, int& imageX, int& imageY)
+Image ListBox::createSnapshotOfRows (const SparseSet<int>& rows, int& imageX, int& imageY)
 {
     Rectangle<int> imageArea;
     auto firstRow = getRowContainingPosition (0, viewport->getY());
@@ -1062,8 +1058,7 @@ ScaledImage ListBox::createSnapshotOfRows (const SparseSet<int>& rows, int& imag
     imageX = imageArea.getX();
     imageY = imageArea.getY();
 
-    const auto additionalScale = 2.0f;
-    const auto listScale = Component::getApproximateScaleFactorForComponent (this) * additionalScale;
+    auto listScale = Component::getApproximateScaleFactorForComponent (this);
     Image snapshot (Image::ARGB,
                     roundToInt ((float) imageArea.getWidth() * listScale),
                     roundToInt ((float) imageArea.getHeight() * listScale),
@@ -1076,9 +1071,9 @@ ScaledImage ListBox::createSnapshotOfRows (const SparseSet<int>& rows, int& imag
             if (auto* rowComp = viewport->getComponentForRowIfOnscreen (firstRow + i))
             {
                 Graphics g (snapshot);
-                g.setOrigin ((getLocalPoint (rowComp, Point<int>()) - imageArea.getPosition()) * additionalScale);
+                g.setOrigin (getLocalPoint (rowComp, Point<int>()) - imageArea.getPosition());
 
-                const auto rowScale = Component::getApproximateScaleFactorForComponent (rowComp) * additionalScale;
+                auto rowScale = Component::getApproximateScaleFactorForComponent (rowComp);
 
                 if (g.reduceClipRegion (rowComp->getLocalBounds() * rowScale))
                 {
@@ -1091,7 +1086,7 @@ ScaledImage ListBox::createSnapshotOfRows (const SparseSet<int>& rows, int& imag
         }
     }
 
-    return { snapshot, additionalScale };
+    return snapshot;
 }
 
 void ListBox::startDragAndDrop (const MouseEvent& e, const SparseSet<int>& rowsToDrag, const var& dragDescription, bool allowDraggingToOtherWindows)

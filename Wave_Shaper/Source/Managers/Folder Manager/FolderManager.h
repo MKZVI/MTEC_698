@@ -1,6 +1,6 @@
 //
 //  FolderManager.hpp
-//  Course Plugin - Shared Code
+//  Wave Shaper - Shared Code
 //
 //  Created by Jacob Penn on 3/8/22.
 //

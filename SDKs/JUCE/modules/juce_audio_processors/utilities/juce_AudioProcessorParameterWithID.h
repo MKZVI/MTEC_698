@@ -33,7 +33,7 @@ namespace juce
 
     @tags{Audio}
 */
-class JUCE_API  AudioProcessorParameterWithID  : public HostedAudioProcessorParameter
+class JUCE_API  AudioProcessorParameterWithID  : public AudioProcessorParameter
 {
 public:
     /** The creation of this object requires providing a name and ID which will be
@@ -62,8 +62,6 @@ public:
     String getName (int) const override;
     String getLabel() const override;
     Category getCategory() const override;
-
-    String getParameterID() const override { return paramID; }
 
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioProcessorParameterWithID)

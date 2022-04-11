@@ -141,20 +141,6 @@ void Button::setConnectedEdges (int newFlags)
 }
 
 //==============================================================================
-void Button::checkToggleableState (bool wasToggleable)
-{
-    if (isToggleable() != wasToggleable)
-        invalidateAccessibilityHandler();
-}
-
-void Button::setToggleable (bool isNowToggleable)
-{
-    const auto wasToggleable = isToggleable();
-
-    canBeToggled = isNowToggleable;
-    checkToggleableState (wasToggleable);
-}
-
 void Button::setToggleState (bool shouldBeOn, NotificationType notification)
 {
     setToggleState (shouldBeOn, notification, notification);
@@ -215,16 +201,18 @@ void Button::setToggleState (bool shouldBeOn, bool sendChange)
 
 void Button::setClickingTogglesState (bool shouldToggle) noexcept
 {
-    const auto wasToggleable = isToggleable();
-
     clickTogglesState = shouldToggle;
-    checkToggleableState (wasToggleable);
 
     // if you've got clickTogglesState turned on, you shouldn't also connect the button
     // up to be a command invoker. Instead, your command handler must flip the state of whatever
     // it is that this button represents, and the button will update its state to reflect this
     // in the applicationCommandListChanged() method.
     jassert (commandManagerToUse == nullptr || ! clickTogglesState);
+}
+
+bool Button::getClickingTogglesState() const noexcept
+{
+    return clickTogglesState;
 }
 
 void Button::setRadioGroupId (int newGroupId, NotificationType notification)
@@ -236,7 +224,6 @@ void Button::setRadioGroupId (int newGroupId, NotificationType notification)
         if (lastToggleState)
             turnOffOtherButtonsInGroup (notification, notification);
 
-        setToggleable (true);
         invalidateAccessibilityHandler();
     }
 }
@@ -722,8 +709,7 @@ public:
     explicit ButtonAccessibilityHandler (Button& buttonToWrap, AccessibilityRole roleIn)
         : AccessibilityHandler (buttonToWrap,
                                 isRadioButton (buttonToWrap) ? AccessibilityRole::radioButton : roleIn,
-                                getAccessibilityActions (buttonToWrap),
-                                getAccessibilityInterfaces (buttonToWrap)),
+                                getAccessibilityActions (buttonToWrap, roleIn)),
           button (buttonToWrap)
     {
     }
@@ -732,7 +718,7 @@ public:
     {
         auto state = AccessibilityHandler::getCurrentState();
 
-        if (button.isToggleable())
+        if (isToggleButton (getRole()) || isRadioButton (button))
         {
             state = state.withCheckable();
 
@@ -756,48 +742,26 @@ public:
     String getHelp() const override  { return button.getTooltip(); }
 
 private:
-    class ButtonValueInterface  : public AccessibilityTextValueInterface
+    static bool isToggleButton (AccessibilityRole role) noexcept
     {
-    public:
-        explicit ButtonValueInterface (Button& buttonToWrap)
-            : button (buttonToWrap)
-        {
-        }
-
-        bool isReadOnly() const override                 { return true; }
-        String getCurrentValueAsString() const override  { return button.getToggleState() ? "On" : "Off"; }
-        void setValueAsString (const String&) override   {}
-
-    private:
-        Button& button;
-
-        //==============================================================================
-        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ButtonValueInterface)
-    };
+        return role == AccessibilityRole::toggleButton;
+    }
 
     static bool isRadioButton (const Button& button) noexcept
     {
         return button.getRadioGroupId() != 0;
     }
 
-    static AccessibilityActions getAccessibilityActions (Button& button)
+    static AccessibilityActions getAccessibilityActions (Button& button, AccessibilityRole role)
     {
         auto actions = AccessibilityActions().addAction (AccessibilityActionType::press,
                                                          [&button] { button.triggerClick(); });
 
-        if (button.isToggleable())
+        if (isToggleButton (role))
             actions = actions.addAction (AccessibilityActionType::toggle,
                                          [&button] { button.setToggleState (! button.getToggleState(), sendNotification); });
 
         return actions;
-    }
-
-    static Interfaces getAccessibilityInterfaces (Button& button)
-    {
-        if (button.isToggleable())
-            return { std::make_unique<ButtonValueInterface> (button) };
-
-        return {};
     }
 
     Button& button;

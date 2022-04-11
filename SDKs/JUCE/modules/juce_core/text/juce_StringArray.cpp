@@ -89,6 +89,10 @@ StringArray& StringArray::operator= (StringArray&& other) noexcept
     return *this;
 }
 
+StringArray::~StringArray()
+{
+}
+
 bool StringArray::operator== (const StringArray& other) const noexcept
 {
     return strings == other.strings;

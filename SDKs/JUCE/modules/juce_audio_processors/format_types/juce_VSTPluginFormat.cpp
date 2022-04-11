@@ -41,8 +41,6 @@ JUCE_BEGIN_IGNORE_WARNINGS_MSVC (4996)
 
 namespace Vst2
 {
-struct AEffect;
-
 // If the following files cannot be found then you are probably trying to host
 // VST2 plug-ins. To do this you must have a VST2 SDK in your header search
 // paths or use the "VST (Legacy) SDK Folder" field in the Projucer. The VST2
@@ -830,9 +828,9 @@ static const int defaultVSTBlockSizeValue = 512;
 JUCE_BEGIN_IGNORE_WARNINGS_MSVC (4996)
 
 //==============================================================================
-struct VSTPluginInstance final   : public AudioPluginInstance,
-                                   private Timer,
-                                   private AsyncUpdater
+struct VSTPluginInstance     : public AudioPluginInstance,
+                               private Timer,
+                               private AsyncUpdater
 {
     struct VSTParameter final   : public Parameter
     {
@@ -974,11 +972,6 @@ struct VSTPluginInstance final   : public AudioPluginInstance,
             return vstValueStrings;
         }
 
-        String getParameterID() const override
-        {
-            return String (getParameterIndex());
-        }
-
         VSTPluginInstance& pluginInstance;
 
         const String name;
@@ -1084,7 +1077,7 @@ struct VSTPluginInstance final   : public AudioPluginInstance,
                                                                        isBoolSwitch, parameterValueStrings, valueType));
         }
 
-        setHostedParameterTree (std::move (newParameterTree));
+        setParameterTree (std::move (newParameterTree));
     }
 
     ~VSTPluginInstance() override
@@ -1267,7 +1260,7 @@ struct VSTPluginInstance final   : public AudioPluginInstance,
         {
             explicit Extensions (const VSTPluginInstance* instanceIn) : instance (instanceIn) {}
 
-            AEffect* getAEffectPtr() const noexcept override   { return reinterpret_cast<AEffect*> (instance->vstEffect); }
+            void* getAEffectPtr() const noexcept override   { return instance->vstEffect; }
 
             const VSTPluginInstance* instance = nullptr;
         };
@@ -1585,7 +1578,7 @@ struct VSTPluginInstance final   : public AudioPluginInstance,
             {
                 char nm[264] = { 0 };
 
-                if (dispatch (Vst2::effGetProgramNameIndexed, jlimit (0, getNumPrograms() - 1, index), -1, nm, 0) != 0)
+                if (dispatch (Vst2::effGetProgramNameIndexed, jlimit (0, getNumPrograms(), index), -1, nm, 0) != 0)
                     return String::fromUTF8 (nm).trim();
             }
         }
@@ -2012,7 +2005,7 @@ struct VSTPluginInstance final   : public AudioPluginInstance,
 
 private:
     //==============================================================================
-    struct VST2BypassParameter final : public Parameter
+    struct VST2BypassParameter    : Parameter
     {
         VST2BypassParameter (VSTPluginInstance& effectToUse)
             : parent (effectToUse),
@@ -2055,7 +2048,6 @@ private:
         int getNumSteps() const override                                    { return 2; }
         StringArray getAllValueStrings() const override                     { return values; }
         String getLabel() const override                                    { return {}; }
-        String getParameterID() const override                              { return {}; }
 
         VSTPluginInstance& parent;
         bool currentValue = false;
@@ -2396,29 +2388,21 @@ private:
                     else
                         vstHostTime.flags &= ~Vst2::kVstTransportChanged;
 
-                    struct OptionalFrameRate
+                    switch (position.frameRate)
                     {
-                        bool valid;
-                        Vst2::VstInt32 rate;
-                    };
+                        case AudioPlayHead::fps24:       setHostTimeFrameRate (Vst2::kVstSmpte24fps, 24.0, position.timeInSeconds); break;
+                        case AudioPlayHead::fps25:       setHostTimeFrameRate (Vst2::kVstSmpte25fps, 25.0, position.timeInSeconds); break;
+                        case AudioPlayHead::fps30:       setHostTimeFrameRate (Vst2::kVstSmpte30fps, 30.0, position.timeInSeconds); break;
+                        case AudioPlayHead::fps60:       setHostTimeFrameRate (Vst2::kVstSmpte60fps, 60.0, position.timeInSeconds); break;
 
-                    const auto optionalFrameRate = [&fr = position.frameRate]() -> OptionalFrameRate
-                    {
-                        switch (fr.getBaseRate())
-                        {
-                            case 24:        return { true, fr.isPullDown() ? Vst2::kVstSmpte239fps : Vst2::kVstSmpte24fps };
-                            case 25:        return { true, fr.isPullDown() ? Vst2::kVstSmpte249fps : Vst2::kVstSmpte25fps };
-                            case 30:        return { true, fr.isPullDown() ? (fr.isDrop() ? Vst2::kVstSmpte2997dfps : Vst2::kVstSmpte2997fps)
-                                                                           : (fr.isDrop() ? Vst2::kVstSmpte30dfps   : Vst2::kVstSmpte30fps) };
-                            case 60:        return { true, fr.isPullDown() ? Vst2::kVstSmpte599fps : Vst2::kVstSmpte60fps };
-                        }
-
-                        return { false, Vst2::VstSmpteFrameRate{} };
-                    }();
-
-                    vstHostTime.flags |= optionalFrameRate.valid ? Vst2::kVstSmpteValid : 0;
-                    vstHostTime.smpteFrameRate = optionalFrameRate.rate;
-                    vstHostTime.smpteOffset = (int32) (position.timeInSeconds * 80.0 * position.frameRate.getEffectiveRate() + 0.5);
+                        case AudioPlayHead::fps23976:    setHostTimeFrameRateDrop (Vst2::kVstSmpte239fps,   24.0, position.timeInSeconds); break;
+                        case AudioPlayHead::fps2997:     setHostTimeFrameRateDrop (Vst2::kVstSmpte2997fps,  30.0, position.timeInSeconds); break;
+                        case AudioPlayHead::fps2997drop: setHostTimeFrameRateDrop (Vst2::kVstSmpte2997dfps, 30.0, position.timeInSeconds); break;
+                        case AudioPlayHead::fps30drop:   setHostTimeFrameRateDrop (Vst2::kVstSmpte30dfps,   30.0, position.timeInSeconds); break;
+                        case AudioPlayHead::fps60drop:   setHostTimeFrameRateDrop (Vst2::kVstSmpte599fps,   60.0, position.timeInSeconds); break;
+                        case AudioPlayHead::fpsUnknown:
+                        default: break;
+                    }
 
                     if (position.isLooping)
                     {
@@ -2514,6 +2498,18 @@ private:
     }
 
     //==============================================================================
+    void setHostTimeFrameRate (long frameRateIndex, double frameRate, double currentTime) noexcept
+    {
+        vstHostTime.flags |= Vst2::kVstSmpteValid;
+        vstHostTime.smpteFrameRate   = (int32) frameRateIndex;
+        vstHostTime.smpteOffset = (int32) (currentTime * 80.0 * frameRate + 0.5);
+    }
+
+    void setHostTimeFrameRateDrop (long frameRateIndex, double frameRate, double currentTime) noexcept
+    {
+        setHostTimeFrameRate (frameRateIndex, frameRate * 1000.0 / 1001.0, currentTime);
+    }
+
     bool restoreProgramSettings (const fxProgram* const prog)
     {
         if (compareMagic (prog->chunkMagic, "CcnK")
@@ -2853,7 +2849,7 @@ public:
     {
         if (cocoaWrapper != nullptr)
         {
-            if (isShowing())
+            if (isVisible())
                 openPluginWindow ((NSView*) cocoaWrapper->getView());
             else
                 closePluginWindow();
@@ -2871,8 +2867,6 @@ public:
                 setSize (w, h);
         }
     }
-
-    void parentHierarchyChanged() override { visibilityChanged(); }
    #else
     void paint (Graphics& g) override
     {
@@ -2917,28 +2911,18 @@ public:
                               0,
                               0,
                               SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER);
-
-                MessageManager::callAsync ([ref = SafePointer<Component> (this)]
-                {
-                    // Clean up after the editor window, in case it tried to move itself
-                    // into the wrong location over this component.
-                    if (ref == nullptr)
-                        return;
-
-                    if (auto* p = ref->getPeer())
-                        p->repaint (p->getBounds().withPosition ({}));
-                });
             }
            #elif JUCE_LINUX || JUCE_BSD
             if (pluginWindow != 0)
             {
+                const auto editorSize = plugin.getEditorSize();
                 auto* symbols = X11Symbols::getInstance();
                 symbols->xMoveResizeWindow (display,
                                             pluginWindow,
                                             pos.getX(),
                                             pos.getY(),
-                                            (unsigned int) pos.getWidth(),
-                                            (unsigned int) pos.getHeight());
+                                            (unsigned int) editorSize.getWidth(),
+                                            (unsigned int) editorSize.getHeight());
                 symbols->xMapRaised (display, pluginWindow);
                 symbols->xFlush (display);
             }
@@ -2987,9 +2971,7 @@ public:
     void nativeScaleFactorChanged (double newScaleFactor) override
     {
         setScaleFactorAndDispatchMessage (newScaleFactor);
-       #if JUCE_WINDOWS
-        resizeToFit();
-       #endif
+        componentMovedOrResized (true, true);
     }
 
     void setScaleFactorAndDispatchMessage (double newScaleFactor)
@@ -3290,33 +3272,40 @@ private:
 
     //==============================================================================
    #if JUCE_WINDOWS
+    bool willCauseRecursiveResize (int w, int h)
+    {
+        auto newScreenBounds = Rectangle<int> (w, h).withPosition (getScreenPosition());
+        return Desktop::getInstance().getDisplays().getDisplayForRect (newScreenBounds)->scale != nativeScaleFactor;
+    }
+
     bool isWindowSizeCorrectForPlugin (int w, int h)
     {
-        if (pluginRefusesToResize)
+        if (! isShowing() || pluginRefusesToResize)
             return true;
 
         return (isWithin (w, getWidth(), 5) && isWithin (h, getHeight(), 5));
     }
 
-    void resizeToFit()
-    {
-        Vst2::ERect* rect = nullptr;
-        dispatch (Vst2::effEditGetRect, 0, 0, &rect, 0);
-
-        auto w = roundToInt ((rect->right - rect->left) / nativeScaleFactor);
-        auto h = roundToInt ((rect->bottom - rect->top) / nativeScaleFactor);
-
-        if (! isWindowSizeCorrectForPlugin (w, h))
-        {
-            updateSizeFromEditor (w, h);
-            sizeCheckCount = 0;
-        }
-    }
-
     void checkPluginWindowSize()
     {
         if (! pluginRespondsToDPIChanges)
-            resizeToFit();
+        {
+            Vst2::ERect* rect = nullptr;
+            dispatch (Vst2::effEditGetRect, 0, 0, &rect, 0);
+
+            auto w = roundToInt ((rect->right - rect->left) / nativeScaleFactor);
+            auto h = roundToInt ((rect->bottom - rect->top) / nativeScaleFactor);
+
+            if (! isWindowSizeCorrectForPlugin (w, h))
+            {
+                // If plug-in isn't DPI aware then we need to resize our window, but this may cause a recursive resize
+                // so add a check
+                if (! willCauseRecursiveResize (w, h))
+                    updateSizeFromEditor (w, h);
+
+                sizeCheckCount = 0;
+            }
+        }
     }
 
     // hooks to get keyboard events from VST windows..

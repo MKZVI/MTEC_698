@@ -206,7 +206,7 @@ private:
             JucePlayerStatusObserverClass()    : ObjCClass<NSObject> ("JucePlayerStatusObserverClass_")
             {
                 JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wundeclared-selector")
-                addMethod (@selector (observeValueForKeyPath:ofObject:change:context:), valueChanged);
+                addMethod (@selector (observeValueForKeyPath:ofObject:change:context:), valueChanged, "v@:@@@?");
                 JUCE_END_IGNORE_WARNINGS_GCC_LIKE
 
                 addIvar<PlayerAsyncInitialiser*> ("owner");
@@ -250,7 +250,7 @@ private:
             JucePlayerItemPlaybackStatusObserverClass()    : ObjCClass<NSObject> ("JucePlayerItemPlaybackStatusObserverClass_")
             {
                 JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wundeclared-selector")
-                addMethod (@selector (processNotification:), notificationReceived);
+                addMethod (@selector (processNotification:), notificationReceived, "v@:@");
                 JUCE_END_IGNORE_WARNINGS_GCC_LIKE
 
                 addIvar<PlayerControllerBase*> ("owner");
@@ -305,7 +305,7 @@ private:
                 JucePlayerItemPreparationStatusObserverClass()    : ObjCClass<NSObject> ("JucePlayerItemStatusObserverClass_")
                 {
                     JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wundeclared-selector")
-                    addMethod (@selector (observeValueForKeyPath:ofObject:change:context:), valueChanged);
+                    addMethod (@selector (observeValueForKeyPath:ofObject:change:context:), valueChanged, "v@:@@@?");
                     JUCE_END_IGNORE_WARNINGS_GCC_LIKE
 
                     addIvar<PlayerAsyncInitialiser*> ("owner");
@@ -487,13 +487,13 @@ private:
         {
             if (crtp().getPlayer() != nullptr && playerStatusObserver != nullptr)
             {
-                [crtp().getPlayer() removeObserver: playerStatusObserver.get()
-                                        forKeyPath: nsStringLiteral ("rate")
-                                           context: this];
+                    [crtp().getPlayer() removeObserver: playerStatusObserver.get()
+                                            forKeyPath: nsStringLiteral ("rate")
+                                               context: this];
 
-                [crtp().getPlayer() removeObserver: playerStatusObserver.get()
-                                        forKeyPath: nsStringLiteral ("status")
-                                           context: this];
+                    [crtp().getPlayer() removeObserver: playerStatusObserver.get()
+                                            forKeyPath: nsStringLiteral ("status")
+                                               context: this];
             }
         }
 
@@ -626,9 +626,6 @@ private:
 
         void setPlayer (AVPlayer* player)
         {
-            detachPlayerStatusObserver();
-            detachPlaybackObserver();
-
            #if ! JUCE_32BIT
             if (useNativeControls)
                 [playerView setPlayer: player];
@@ -640,6 +637,11 @@ private:
             {
                 attachPlayerStatusObserver();
                 attachPlaybackObserver();
+            }
+            else
+            {
+                detachPlayerStatusObserver();
+                detachPlaybackObserver();
             }
         }
 
@@ -731,7 +733,7 @@ private:
         {
             JuceVideoViewerClass()  : ObjCClass<UIView> ("JuceVideoViewerClass_")
             {
-                addMethod (@selector (layoutSubviews), layoutSubviews);
+                addMethod (@selector (layoutSubviews), layoutSubviews, "v@:");
 
                 registerClass();
             }

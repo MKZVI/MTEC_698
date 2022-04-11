@@ -1,70 +1,70 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="ua5Pug" name="Course Plugin" projectType="audioplug" useAppConfig="0"
+<JUCERPROJECT id="ua5Pug" name="Wave Shaper" projectType="audioplug" useAppConfig="0"
               addUsingNamespaceToJuceHeader="1" jucerFormatVersion="1" defines="JUCE_MODAL_LOOPS_PERMITTED=1"
               displaySplashScreen="1">
-  <MAINGROUP id="mIDlkp" name="Course Plugin">
+  <MAINGROUP id="mIDlkp" name="Wave Shaper">
     <GROUP id="{CD29536D-8845-4D04-0286-4D08E4475253}" name="Source">
       <GROUP id="{32ED57E1-281F-3DD2-5145-3DAC1385903E}" name="DSP">
         <GROUP id="{7F42A1EA-7BC4-FD75-501A-DABCC4A29991}" name="Generators">
-          <FILE id="gOjXdC" name="SineWave.cpp" compile="1" resource="0" file="Source/DSP/Generators/SineWave.cpp"/>
-          <FILE id="xK4ie3" name="SineWave.h" compile="0" resource="0" file="Source/DSP/Generators/SineWave.h"/>
+          <FILE id="J4Gor0" name="SineWave.cpp" compile="1" resource="0" file="Source/DSP/Generators/SineWave.cpp"/>
+          <FILE id="Mu61AI" name="SineWave.h" compile="0" resource="0" file="Source/DSP/Generators/SineWave.h"/>
         </GROUP>
         <GROUP id="{0C40DF43-CEE1-ADAE-3F4B-FA7A27E8EBB3}" name="Samples">
-          <FILE id="xXaRsM" name="InMemorySample.cpp" compile="1" resource="0"
+          <FILE id="o3kDqZ" name="InMemorySample.cpp" compile="1" resource="0"
                 file="Source/DSP/Samples/InMemorySample.cpp"/>
-          <FILE id="kUkSdJ" name="InMemorySample.h" compile="0" resource="0"
+          <FILE id="BSbbPB" name="InMemorySample.h" compile="0" resource="0"
                 file="Source/DSP/Samples/InMemorySample.h"/>
-          <FILE id="Qv47hI" name="SampleBase.cpp" compile="1" resource="0" file="Source/DSP/Samples/SampleBase.cpp"/>
-          <FILE id="zG1Wmp" name="SampleBase.h" compile="0" resource="0" file="Source/DSP/Samples/SampleBase.h"/>
+          <FILE id="BkQl9N" name="SampleBase.cpp" compile="1" resource="0" file="Source/DSP/Samples/SampleBase.cpp"/>
+          <FILE id="o6Mcc0" name="SampleBase.h" compile="0" resource="0" file="Source/DSP/Samples/SampleBase.h"/>
         </GROUP>
         <GROUP id="{88312DC0-7DD0-E4B3-FB51-E03D966F4B52}" name="Time Based">
-          <FILE id="cYSTfP" name="Delay.cpp" compile="1" resource="0" file="Source/DSP/Time Based/Delay.cpp"/>
-          <FILE id="m10llg" name="Delay.h" compile="0" resource="0" file="Source/DSP/Time Based/Delay.h"/>
+          <FILE id="ifnni0" name="Delay.cpp" compile="1" resource="0" file="Source/DSP/Time Based/Delay.cpp"/>
+          <FILE id="R4uzaF" name="Delay.h" compile="0" resource="0" file="Source/DSP/Time Based/Delay.h"/>
         </GROUP>
-        <FILE id="XYMHvF" name="AudioHelpers.h" compile="0" resource="0" file="Source/DSP/AudioHelpers.h"/>
+        <FILE id="V2zSDx" name="AudioHelpers.h" compile="0" resource="0" file="Source/DSP/AudioHelpers.h"/>
       </GROUP>
       <GROUP id="{1B6231C4-F144-2951-2862-8D7299B87DFE}" name="Managers">
-        <GROUP id="{5770D60D-176F-9108-EB3C-331F19A7E138}" name="PropertyManager">
-          <FILE id="a00HHu" name="PropertyManager.cpp" compile="1" resource="0"
-                file="../../../Documents/PropertyManager.cpp"/>
-          <FILE id="aRmQqu" name="PropertyManager.h" compile="0" resource="0"
-                file="../../../Documents/PropertyManager.h"/>
-        </GROUP>
-        <GROUP id="{C28CD091-C6D6-1F7E-9651-86B24D3B0787}" name="Folder Manager">
-          <FILE id="Z8UcWQ" name="FolderManager.cpp" compile="1" resource="0"
+        <GROUP id="{B8C3CD21-1320-761E-1028-4FAA199B9BDA}" name="Folder Manager">
+          <FILE id="pX5tYb" name="FolderManager.cpp" compile="1" resource="0"
                 file="Source/Managers/Folder Manager/FolderManager.cpp"/>
-          <FILE id="AbztFF" name="FolderManager.h" compile="0" resource="0" file="Source/Managers/Folder Manager/FolderManager.h"/>
+          <FILE id="ErjsnD" name="FolderManager.h" compile="0" resource="0" file="Source/Managers/Folder Manager/FolderManager.h"/>
         </GROUP>
-        <GROUP id="{92D94CA5-D641-A4B4-6DED-DC5C19A5F417}" name="Interfaces">
-          <FILE id="baWFZZ" name="ProcessorInterface.h" compile="0" resource="0"
+        <GROUP id="{507C22B9-5A85-A071-F6BF-4C3D34BDE219}" name="Interfaces">
+          <FILE id="HTrqgC" name="ProcessorInterface.h" compile="0" resource="0"
                 file="Source/Managers/Interfaces/ProcessorInterface.h"/>
         </GROUP>
         <GROUP id="{4A42E928-8A1E-4EC3-3DCB-5A026F3B2C10}" name="Parameter Manager">
-          <FILE id="We9wdD" name="ParameterDefines.h" compile="0" resource="0"
+          <FILE id="ivsNeq" name="ParameterDefines.h" compile="0" resource="0"
                 file="Source/Managers/Parameter Manager/ParameterDefines.h"/>
-          <FILE id="bGjRPI" name="ParameterManager.cpp" compile="1" resource="0"
+          <FILE id="eK3X0n" name="ParameterManager.cpp" compile="1" resource="0"
                 file="Source/Managers/Parameter Manager/ParameterManager.cpp"/>
-          <FILE id="hkuuIq" name="ParameterManager.h" compile="0" resource="0"
+          <FILE id="VZrD3w" name="ParameterManager.h" compile="0" resource="0"
                 file="Source/Managers/Parameter Manager/ParameterManager.h"/>
         </GROUP>
         <GROUP id="{6CE55BE4-8CF5-54C7-A7AE-EFF20A89E3FA}" name="Preset Manager">
-          <FILE id="meVjE1" name="PresetManager.cpp" compile="1" resource="0"
+          <FILE id="ztelm6" name="PresetManager.cpp" compile="1" resource="0"
                 file="Source/Managers/Preset Manager/PresetManager.cpp"/>
-          <FILE id="w9B9Ta" name="PresetManager.h" compile="0" resource="0" file="Source/Managers/Preset Manager/PresetManager.h"/>
+          <FILE id="TqvFsD" name="PresetManager.h" compile="0" resource="0" file="Source/Managers/Preset Manager/PresetManager.h"/>
+        </GROUP>
+        <GROUP id="{BB04120D-61CC-BE72-C9C7-D90986889BDC}" name="Property Manager">
+          <FILE id="naUmli" name="PropertyManager.cpp" compile="1" resource="0"
+                file="Source/Managers/Property Manager/PropertyManager.cpp"/>
+          <FILE id="gI1KJs" name="PropertyManager.h" compile="0" resource="0"
+                file="Source/Managers/Property Manager/PropertyManager.h"/>
         </GROUP>
       </GROUP>
       <GROUP id="{049607D3-3567-E69C-5A52-CFCA2E9049FA}" name="UI">
-        <FILE id="YWCAkw" name="MyLookAndFeel.cpp" compile="1" resource="0"
+        <FILE id="GLbZTl" name="MyLookAndFeel.cpp" compile="1" resource="0"
               file="Source/UI/MyLookAndFeel.cpp"/>
-        <FILE id="IDpzi1" name="MyLookAndFeel.h" compile="0" resource="0" file="Source/UI/MyLookAndFeel.h"/>
+        <FILE id="rbFKIe" name="MyLookAndFeel.h" compile="0" resource="0" file="Source/UI/MyLookAndFeel.h"/>
       </GROUP>
-      <FILE id="Nne5tS" name="PluginEditor.cpp" compile="1" resource="0"
+      <FILE id="dt9tIA" name="PluginEditor.cpp" compile="1" resource="0"
             file="Source/PluginEditor.cpp"/>
-      <FILE id="GtVBe8" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
-      <FILE id="CkE5TD" name="PluginProcessor.cpp" compile="1" resource="0"
+      <FILE id="Us6rUB" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+      <FILE id="hs7nlP" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
-      <FILE id="sqG5qH" name="PluginProcessor.h" compile="0" resource="0"
+      <FILE id="YhPfPM" name="PluginProcessor.h" compile="0" resource="0"
             file="Source/PluginProcessor.h"/>
     </GROUP>
   </MAINGROUP>
@@ -72,8 +72,8 @@
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" useHeaderMap="1">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" targetName="Course Plugin"/>
-        <CONFIGURATION isDebug="0" name="Release" targetName="Course Plugin"/>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="Wave Shaper"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="Wave Shaper"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_audio_basics" path="../SDKs/JUCE/modules"/>

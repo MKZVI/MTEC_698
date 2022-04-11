@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio Version 16
+
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Wave Shaper - Standalone Plugin", "Wave Shaper_StandalonePlugin.vcxproj", "{4F644068-B326-BDCA-F777-387EED56EEF2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EA6B5589-0429-162E-9C6E-86E47078A64E} = {EA6B5589-0429-162E-9C6E-86E47078A64E}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Wave Shaper - VST3", "Wave Shaper_VST3.vcxproj", "{F402D204-284A-AB97-4996-8AA47793D848}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EA6B5589-0429-162E-9C6E-86E47078A64E} = {EA6B5589-0429-162E-9C6E-86E47078A64E}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Wave Shaper - Shared Code", "Wave Shaper_SharedCode.vcxproj", "{EA6B5589-0429-162E-9C6E-86E47078A64E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F402D204-284A-AB97-4996-8AA47793D848}.Debug|x64.ActiveCfg = Debug|x64
+		{F402D204-284A-AB97-4996-8AA47793D848}.Debug|x64.Build.0 = Debug|x64
+		{F402D204-284A-AB97-4996-8AA47793D848}.Release|x64.ActiveCfg = Release|x64
+		{F402D204-284A-AB97-4996-8AA47793D848}.Release|x64.Build.0 = Release|x64
+		{4F644068-B326-BDCA-F777-387EED56EEF2}.Debug|x64.ActiveCfg = Debug|x64
+		{4F644068-B326-BDCA-F777-387EED56EEF2}.Debug|x64.Build.0 = Debug|x64
+		{4F644068-B326-BDCA-F777-387EED56EEF2}.Release|x64.ActiveCfg = Release|x64
+		{4F644068-B326-BDCA-F777-387EED56EEF2}.Release|x64.Build.0 = Release|x64
+		{EA6B5589-0429-162E-9C6E-86E47078A64E}.Debug|x64.ActiveCfg = Debug|x64
+		{EA6B5589-0429-162E-9C6E-86E47078A64E}.Debug|x64.Build.0 = Debug|x64
+		{EA6B5589-0429-162E-9C6E-86E47078A64E}.Release|x64.ActiveCfg = Release|x64
+		{EA6B5589-0429-162E-9C6E-86E47078A64E}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

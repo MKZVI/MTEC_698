@@ -20,8 +20,6 @@
   ==============================================================================
 */
 
-#ifndef DOXYGEN
-
 namespace juce
 {
 namespace universal_midi_packets
@@ -113,5 +111,3 @@ struct Utils
 
 }
 }
-
-#endif

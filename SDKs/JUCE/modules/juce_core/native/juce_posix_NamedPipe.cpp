@@ -66,9 +66,7 @@ public:
 
             if (numRead <= 0)
             {
-                const auto error = errno;
-
-                if (! (error == EWOULDBLOCK || error == EAGAIN) || stopReadOperation.load() || hasExpired (timeoutEnd))
+                if (errno != EWOULDBLOCK || stopReadOperation.load() || hasExpired (timeoutEnd))
                     return -1;
 
                 const int maxWaitingTime = 30;
@@ -99,20 +97,8 @@ public:
             auto bytesThisTime = numBytesToWrite - bytesWritten;
             auto numWritten = (int) ::write (pipeOut, sourceBuffer, (size_t) bytesThisTime);
 
-            if (numWritten < 0)
-            {
-                const auto error = errno;
-                const int maxWaitingTime = 30;
-
-                if (error == EWOULDBLOCK || error == EAGAIN)
-                    waitToWrite (pipeOut, timeoutEnd == 0 ? maxWaitingTime
-                                                          : jmin (maxWaitingTime,
-                                                                  (int) (timeoutEnd - Time::getMillisecondCounter())));
-                else
-                    return -1;
-
-                numWritten = 0;
-            }
+            if (numWritten <= 0)
+                return -1;
 
             bytesWritten += numWritten;
             sourceBuffer += numWritten;
@@ -189,12 +175,6 @@ private:
     static void waitForInput (int handle, int timeoutMsecs) noexcept
     {
         pollfd pfd { handle, POLLIN, 0 };
-        poll (&pfd, 1, timeoutMsecs);
-    }
-
-    static void waitToWrite (int handle, int timeoutMsecs) noexcept
-    {
-        pollfd pfd { handle, POLLOUT, 0 };
         poll (&pfd, 1, timeoutMsecs);
     }
 

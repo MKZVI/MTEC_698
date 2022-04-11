@@ -29,8 +29,6 @@
 //==============================================================================
 #if JucePlugin_Build_VST3 && (JUCE_MAC || JUCE_WINDOWS || JUCE_LINUX || JUCE_BSD)
 
-JUCE_BEGIN_NO_SANITIZE ("vptr")
-
 #if JUCE_PLUGINHOST_VST3
  #if JUCE_MAC
   #include <CoreFoundation/CoreFoundation.h>
@@ -48,6 +46,7 @@ JUCE_BEGIN_NO_SANITIZE ("vptr")
 #include "../utility/juce_IncludeSystemHeaders.h"
 #include "../utility/juce_IncludeModuleHeaders.h"
 #include "../utility/juce_WindowsHooks.h"
+#include "../utility/juce_FakeMouseMoveGenerator.h"
 #include "../utility/juce_LinuxMessageThread.h"
 #include <juce_audio_processors/format_types/juce_LegacyAudioParameter.cpp>
 #include <juce_audio_processors/format_types/juce_VST3Common.h>
@@ -64,7 +63,6 @@ JUCE_BEGIN_NO_SANITIZE ("vptr")
 
  namespace Vst2
  {
- struct AEffect;
  #include "pluginterfaces/vst2.x/vstfxstore.h"
  }
 
@@ -532,13 +530,13 @@ private:
 
         // if the bypass parameter is not part of the exported parameters that the plug-in supports
         // then add it to the end of the list as VST3 requires the bypass parameter to be exported!
-        bypassIsRegularParameter = juceParameters.contains (audioProcessor->getBypassParameter());
+        bypassIsRegularParameter = juceParameters.params.contains (audioProcessor->getBypassParameter());
 
         if (! bypassIsRegularParameter)
-            juceParameters.addNonOwning (bypassParameter);
+            juceParameters.params.add (bypassParameter);
 
         int i = 0;
-        for (auto* juceParam : juceParameters)
+        for (auto* juceParam : juceParameters.params)
         {
             bool isBypassParameter = (juceParam == bypassParameter);
 
@@ -570,7 +568,7 @@ private:
                                                                          0, numPrograms - 1,
                                                                          audioProcessor->getCurrentProgram());
 
-            juceParameters.addNonOwning (ownedProgramParameter.get());
+            juceParameters.params.add (ownedProgramParameter.get());
 
             if (forceLegacyParamIDs)
                 programParamID = static_cast<Vst::ParamID> (i++);
@@ -623,15 +621,6 @@ private:
 class JuceVST3Component;
 
 static thread_local bool inParameterChangedCallback = false;
-
-static void setValueAndNotifyIfChanged (AudioProcessorParameter& param, float newValue)
-{
-    if (param.getValue() == newValue)
-        return;
-
-    const InParameterChangedCallbackSetter scopedSetter { inParameterChangedCallback };
-    param.setValueNotifyingHost (newValue);
-}
 
 //==============================================================================
 class JuceVST3EditController : public Vst::EditController,
@@ -756,7 +745,14 @@ public:
                 // otherwise we get parallel streams of parameter value updates
                 // during playback
                 if (! owner.vst3IsPlaying)
-                    setValueAndNotifyIfChanged (param, (float) v);
+                {
+                    auto value = static_cast<float> (v);
+
+                    param.setValue (value);
+
+                    const InParameterChangedCallbackSetter scopedSetter { inParameterChangedCallback };
+                    param.sendValueChangedMessageToListeners (value);
+                }
 
                 changed();
                 return true;
@@ -823,17 +819,20 @@ public:
 
         bool setNormalized (Vst::ParamValue v) override
         {
-            const auto programValue = getProgramValueFromNormalised (v);
+            auto programValue = roundToInt (toPlain (v));
 
-            if (programValue != owner.getCurrentProgram())
-                owner.setCurrentProgram (programValue);
-
-            if (valueNormalized != v)
+            if (isPositiveAndBelow (programValue, owner.getNumPrograms()))
             {
-                valueNormalized = v;
-                changed();
+                if (programValue != owner.getCurrentProgram())
+                    owner.setCurrentProgram (programValue);
 
-                return true;
+                if (valueNormalized != v)
+                {
+                    valueNormalized = v;
+                    changed();
+
+                    return true;
+                }
             }
 
             return false;
@@ -866,13 +865,8 @@ public:
             return String (CharPointer_UTF16 (reinterpret_cast<const CharPointer_UTF16::CharType*> (text)));
         }
 
-        Steinberg::int32 getProgramValueFromNormalised (Vst::ParamValue v) const
-        {
-            return jmin (info.stepCount, (Steinberg::int32) (v * (info.stepCount + 1)));
-        }
-
-        Vst::ParamValue toPlain (Vst::ParamValue v) const override       { return getProgramValueFromNormalised (v); }
-        Vst::ParamValue toNormalized (Vst::ParamValue v) const override  { return v / info.stepCount; }
+        Vst::ParamValue toPlain (Vst::ParamValue v) const override       { return v * (info.stepCount + 1); }
+        Vst::ParamValue toNormalized (Vst::ParamValue v) const override  { return v / (info.stepCount + 1); }
 
     private:
         AudioProcessor& owner;
@@ -1263,13 +1257,8 @@ public:
             }
         }
 
-        if (details.nonParameterStateChanged)
-            flags |= pluginShouldBeMarkedDirtyFlag;
-
-        if (inSetupProcessing)
-            flags &= Vst::kLatencyChanged;
-
-        componentRestarter.restart (flags);
+        if (! inSetupProcessing)
+            componentRestarter.restart (flags);
     }
 
     //==============================================================================
@@ -1280,8 +1269,6 @@ public:
 
         return nullptr;
     }
-
-    static constexpr auto pluginShouldBeMarkedDirtyFlag = 1 << 16;
 
 private:
     friend class JuceVST3Component;
@@ -1304,11 +1291,6 @@ private:
 
     void restartComponentOnMessageThread (int32 flags) override
     {
-        if ((flags & pluginShouldBeMarkedDirtyFlag) != 0)
-            setDirty (true);
-
-        flags &= ~pluginShouldBeMarkedDirtyFlag;
-
         if (auto* handler = componentHandler)
             handler->restartComponent (flags);
     }
@@ -1490,9 +1472,8 @@ private:
     class EditorContextMenu  : public HostProvidedContextMenu
     {
     public:
-        EditorContextMenu (AudioProcessorEditor& editorIn,
-                           VSTComSmartPtr<Steinberg::Vst::IContextMenu> contextMenuIn)
-            : editor (editorIn), contextMenu (contextMenuIn) {}
+        EditorContextMenu (VSTComSmartPtr<Steinberg::Vst::IContextMenu> contextMenuIn)
+            : contextMenu (contextMenuIn) {}
 
         PopupMenu getEquivalentPopupMenu() const override
         {
@@ -1561,12 +1542,10 @@ private:
 
         void showNativeMenu (Point<int> pos) const override
         {
-            const auto scaled = pos * Component::getApproximateScaleFactorForComponent (&editor);
-            contextMenu->popup (scaled.x, scaled.y);
+            contextMenu->popup (pos.x, pos.y);
         }
 
     private:
-        AudioProcessorEditor& editor;
         VSTComSmartPtr<Steinberg::Vst::IContextMenu> contextMenu;
     };
 
@@ -1574,10 +1553,9 @@ private:
     {
     public:
         EditorHostContext (JuceAudioProcessor& processorIn,
-                           AudioProcessorEditor& editorIn,
                            Steinberg::Vst::IComponentHandler* handler,
                            Steinberg::IPlugView* viewIn)
-            : processor (processorIn), editor (editorIn), componentHandler (handler), view (viewIn) {}
+            : processor (processorIn), componentHandler (handler), view (viewIn) {}
 
         std::unique_ptr<HostProvidedContextMenu> getContextMenuForParameterIndex (const AudioProcessorParameter* parameter) const override
         {
@@ -1591,12 +1569,11 @@ private:
 
             const auto idToUse = parameter != nullptr ? processor.getVSTParamIDForIndex (parameter->getParameterIndex()) : 0;
             const auto menu = VSTComSmartPtr<Steinberg::Vst::IContextMenu> (handler->createContextMenu (view, &idToUse));
-            return std::make_unique<EditorContextMenu> (editor, menu);
+            return std::make_unique<EditorContextMenu> (menu);
         }
 
     private:
         JuceAudioProcessor& processor;
-        AudioProcessorEditor& editor;
         Steinberg::Vst::IComponentHandler* componentHandler = nullptr;
         Steinberg::IPlugView* view = nullptr;
     };
@@ -1609,6 +1586,7 @@ private:
     public:
         JuceVST3Editor (JuceVST3EditController& ec, JuceAudioProcessor& p)
             : EditorView (&ec, nullptr),
+              editorHostContext (p, ec.getComponentHandler(), this),
               owner (&ec),
               pluginInstance (*p.get())
         {
@@ -1928,6 +1906,8 @@ private:
             {
                 setOpaque (true);
                 setBroughtToFrontOnMouseClick (true);
+
+                ignoreUnused (fakeMouseGenerator);
             }
 
             ~ContentWrapperComponent() override
@@ -1945,15 +1925,7 @@ private:
 
                 if (pluginEditor != nullptr)
                 {
-                    editorHostContext = std::make_unique<EditorHostContext> (*owner.owner->audioProcessor,
-                                                                             *pluginEditor,
-                                                                             owner.owner->getComponentHandler(),
-                                                                             &owner);
-
-                    pluginEditor->setHostContext (editorHostContext.get());
-                   #if ! JUCE_MAC
-                    pluginEditor->setScaleFactor (owner.editorScaleFactor);
-                   #endif
+                    pluginEditor->setHostContext (&owner.editorHostContext);
 
                     addAndMakeVisible (pluginEditor.get());
                     pluginEditor->setTopLeftPosition (0, 0);
@@ -2099,7 +2071,7 @@ private:
 
         private:
             JuceVST3Editor& owner;
-            std::unique_ptr<EditorHostContext> editorHostContext;
+            FakeMouseMoveGenerator fakeMouseGenerator;
             Rectangle<int> lastBounds;
             bool resizingChild = false, resizingParent = false;
 
@@ -2121,6 +2093,8 @@ private:
 
         //==============================================================================
         ScopedJuceInitialiser_GUI libraryInitialiser;
+
+        EditorHostContext editorHostContext;
 
        #if JUCE_LINUX || JUCE_BSD
         SharedResourcePointer<MessageThread> messageThread;
@@ -2381,7 +2355,13 @@ public:
     void setBypassed (bool shouldBeBypassed)
     {
         if (auto* bypassParam = comPluginInstance->getBypassParameter())
-            setValueAndNotifyIfChanged (*bypassParam, shouldBeBypassed ? 1.0f : 0.0f);
+        {
+            auto floatValue = (shouldBeBypassed ? 1.0f : 0.0f);
+            bypassParam->setValue (floatValue);
+
+            const InParameterChangedCallbackSetter scopedSetter { inParameterChangedCallback };
+            bypassParam->sendValueChangedMessageToListeners (floatValue);
+        }
     }
 
     //==============================================================================
@@ -2744,14 +2724,51 @@ public:
         info.frameRate = [&]
         {
             if ((processContext.state & Vst::ProcessContext::kSmpteValid) == 0)
-                return FrameRate();
+                return fpsUnknown;
 
-            return FrameRate().withBaseRate ((int) processContext.frameRate.framesPerSecond)
-                              .withDrop ((processContext.frameRate.flags & Vst::FrameRate::kDropRate) != 0)
-                              .withPullDown ((processContext.frameRate.flags & Vst::FrameRate::kPullDownRate) != 0);
+            const auto interpretFlags = [&] (FrameRateType basicRate,
+                                             FrameRateType pullDownRate,
+                                             FrameRateType dropRate,
+                                             FrameRateType pullDownDropRate)
+            {
+                switch (processContext.frameRate.flags & (Vst::FrameRate::kPullDownRate | Vst::FrameRate::kDropRate))
+                {
+                    case Vst::FrameRate::kPullDownRate | Vst::FrameRate::kDropRate:
+                        return pullDownDropRate;
+
+                    case Vst::FrameRate::kPullDownRate:
+                        return pullDownRate;
+
+                    case Vst::FrameRate::kDropRate:
+                        return dropRate;
+                }
+
+                return basicRate;
+            };
+
+            switch (processContext.frameRate.framesPerSecond)
+            {
+                case 24:
+                    return interpretFlags (fps24, fps23976, fps24, fps23976);
+
+                case 25:
+                    return interpretFlags (fps25, fps25, fps25, fps25);
+
+                case 30:
+                    return interpretFlags (fps30, fps2997, fps30drop, fps2997drop);
+
+                case 60:
+                    return interpretFlags (fps60, fps60, fps60drop, fps60drop);
+            }
+
+            return fpsUnknown;
         }();
 
-        info.editOriginTime = (double) processContext.smpteOffsetSubframes / (80.0 * info.frameRate.getEffectiveRate());
+        const auto baseFps = (double) processContext.frameRate.framesPerSecond;
+        const auto effectiveFps = (processContext.frameRate.flags & Vst::FrameRate::kPullDownRate) != 0
+                                ? baseFps * 1000.0 / 1001.0
+                                : baseFps;
+        info.editOriginTime = (double) processContext.smpteOffsetSubframes / (80.0 * effectiveFps);
 
         return true;
     }
@@ -3084,8 +3101,15 @@ public:
                     else
                    #endif
                     {
+                        auto floatValue = static_cast<float> (value);
+
                         if (auto* param = comPluginInstance->getParamForVSTParamID (vstParamID))
-                            setValueAndNotifyIfChanged (*param, (float) value);
+                        {
+                            param->setValue (floatValue);
+
+                            const InParameterChangedCallbackSetter scopedSetter { inParameterChangedCallback };
+                            param->sendValueChangedMessageToListeners (floatValue);
+                        }
                     }
                 }
             }
@@ -3967,7 +3991,5 @@ extern "C" SMTG_EXPORT_SYMBOL IPluginFactory* PLUGIN_API GetPluginFactory()
 #if JUCE_WINDOWS
 extern "C" BOOL WINAPI DllMain (HINSTANCE instance, DWORD reason, LPVOID) { if (reason == DLL_PROCESS_ATTACH) Process::setCurrentModuleInstanceHandle (instance); return true; }
 #endif
-
-JUCE_END_NO_SANITIZE
 
 #endif //JucePlugin_Build_VST3

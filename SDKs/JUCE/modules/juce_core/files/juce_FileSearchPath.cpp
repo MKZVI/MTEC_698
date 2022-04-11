@@ -23,6 +23,9 @@
 namespace juce
 {
 
+FileSearchPath::FileSearchPath() {}
+FileSearchPath::~FileSearchPath() {}
+
 FileSearchPath::FileSearchPath (const String& path)
 {
     init (path);

@@ -1,6 +1,6 @@
 //
 //  ParameterDefines.h
-//  Course Plugin
+//  Wave Shaper
 //
 //  Created by Jacob Penn on 2/15/22.
 //
@@ -10,10 +10,10 @@
 
 #include "JuceHeader.h"
 
-// Course Plugin Parameter Defines
+// Wave Shaper Parameter Defines
 
 enum {
-    DELAY_TIME_SECONDS,
+    DRIVE,
     DELAY_FEEDBACK,
     DELAY_MIX,
     DELAY_FEEDBACK_LOWPASS,

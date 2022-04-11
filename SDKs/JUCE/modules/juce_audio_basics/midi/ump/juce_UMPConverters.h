@@ -20,8 +20,6 @@
   ==============================================================================
 */
 
-#ifndef DOXYGEN
-
 namespace juce
 {
 namespace universal_midi_packets
@@ -165,5 +163,3 @@ namespace universal_midi_packets
     };
 }
 }
-
-#endif

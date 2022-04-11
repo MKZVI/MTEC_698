@@ -82,7 +82,7 @@ private:
         [alert setInformativeText: juceStringToNS (options.getMessage())];
 
         [alert setAlertStyle: options.getIconType() == MessageBoxIconType::WarningIcon ? NSAlertStyleCritical
-                                                                                       : NSAlertStyleInformational];
+                                                                                                : NSAlertStyleInformational];
 
         const auto button1Text = options.getButtonText (0);
 
@@ -239,11 +239,11 @@ struct NSDraggingSourceHelper   : public ObjCClass<NSObject<NSDraggingSource>>
         addIvar<String*> ("text");
         addIvar<NSDragOperation*> ("operation");
 
-        addMethod (@selector (dealloc), dealloc);
-        addMethod (@selector (pasteboard:item:provideDataForType:), provideDataForType);
+        addMethod (@selector (dealloc), dealloc, "v@:");
+        addMethod (@selector (pasteboard:item:provideDataForType:), provideDataForType, "v@:@@@");
 
-        addMethod (@selector (draggingSession:sourceOperationMaskForDraggingContext:), sourceOperationMaskForDraggingContext);
-        addMethod (@selector (draggingSession:endedAtPoint:operation:), draggingSessionEnded);
+        addMethod (@selector (draggingSession:sourceOperationMaskForDraggingContext:), sourceOperationMaskForDraggingContext, "c@:@@");
+        addMethod (@selector (draggingSession:endedAtPoint:operation:), draggingSessionEnded, "v@:@@@");
 
         addProtocol (@protocol (NSPasteboardItemDataProvider));
 
@@ -430,73 +430,6 @@ Desktop::DisplayOrientation Desktop::getCurrentOrientation() const
     return upright;
 }
 
-bool Desktop::isDarkModeActive() const
-{
-    return [[[NSUserDefaults standardUserDefaults] stringForKey: nsStringLiteral ("AppleInterfaceStyle")]
-                isEqualToString: nsStringLiteral ("Dark")];
-}
-
-class Desktop::NativeDarkModeChangeDetectorImpl
-{
-public:
-    NativeDarkModeChangeDetectorImpl()
-    {
-        static DelegateClass delegateClass;
-
-        delegate = [delegateClass.createInstance() init];
-        object_setInstanceVariable (delegate, "owner", this);
-
-        JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wundeclared-selector")
-        [[NSDistributedNotificationCenter defaultCenter] addObserver: delegate
-                                                            selector: @selector (darkModeChanged:)
-                                                                name: @"AppleInterfaceThemeChangedNotification"
-                                                              object: nil];
-        JUCE_END_IGNORE_WARNINGS_GCC_LIKE
-    }
-
-    ~NativeDarkModeChangeDetectorImpl()
-    {
-        object_setInstanceVariable (delegate, "owner", nullptr);
-        [[NSDistributedNotificationCenter defaultCenter] removeObserver: delegate];
-        [delegate release];
-    }
-
-    void darkModeChanged()
-    {
-        Desktop::getInstance().darkModeChanged();
-    }
-
-private:
-    struct DelegateClass  : public ObjCClass<NSObject>
-    {
-        DelegateClass()  : ObjCClass<NSObject> ("JUCEDelegate_")
-        {
-            addIvar<NativeDarkModeChangeDetectorImpl*> ("owner");
-
-            JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wundeclared-selector")
-            addMethod (@selector (darkModeChanged:), darkModeChanged);
-            JUCE_END_IGNORE_WARNINGS_GCC_LIKE
-
-            registerClass();
-        }
-
-        static void darkModeChanged (id self, SEL, NSNotification*)
-        {
-            if (auto* owner = getIvar<NativeDarkModeChangeDetectorImpl*> (self, "owner"))
-                owner->darkModeChanged();
-        }
-    };
-
-    id delegate = nil;
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NativeDarkModeChangeDetectorImpl)
-};
-
-std::unique_ptr<Desktop::NativeDarkModeChangeDetectorImpl> Desktop::createNativeDarkModeChangeDetectorImpl()
-{
-    return std::make_unique<NativeDarkModeChangeDetectorImpl>();
-}
-
 //==============================================================================
 class ScreenSaverDefeater   : public Timer
 {
@@ -644,17 +577,13 @@ static void selectImageForDrawing (const Image& image)
 {
     [NSGraphicsContext saveGraphicsState];
 
-    if (@available (macOS 10.10, *))
-    {
-        [NSGraphicsContext setCurrentContext: [NSGraphicsContext graphicsContextWithCGContext: juce_getImageContext (image)
-                                                                                      flipped: false]];
-        return;
-    }
-
-    JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wdeprecated-declarations")
+   #if (defined (MAC_OS_X_VERSION_10_10) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_10)
+    [NSGraphicsContext setCurrentContext: [NSGraphicsContext graphicsContextWithCGContext: juce_getImageContext (image)
+                                                                                  flipped: false]];
+   #else
     [NSGraphicsContext setCurrentContext: [NSGraphicsContext graphicsContextWithGraphicsPort: juce_getImageContext (image)
                                                                                      flipped: false]];
-    JUCE_END_IGNORE_WARNINGS_GCC_LIKE
+   #endif
 }
 
 static void releaseImageAfterDrawing()
@@ -705,6 +634,7 @@ static Image createNSWindowSnapshot (NSWindow* nsWindow)
     }
 }
 
+Image createSnapshotOfNativeWindow (void*);
 Image createSnapshotOfNativeWindow (void* nativeWindowHandle)
 {
     if (id windowOrView = (id) nativeWindowHandle)
@@ -744,6 +674,12 @@ void Process::setDockIconVisible (bool isVisible)
                                                          : kProcessTransformToUIElementApplication);
     jassert (err == 0);
     ignoreUnused (err);
+}
+
+bool Desktop::isOSXDarkModeActive()
+{
+    return [[[NSUserDefaults standardUserDefaults] stringForKey: nsStringLiteral ("AppleInterfaceStyle")]
+                isEqualToString: nsStringLiteral ("Dark")];
 }
 
 } // namespace juce

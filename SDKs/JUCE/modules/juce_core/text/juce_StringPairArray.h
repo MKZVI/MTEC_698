@@ -42,7 +42,7 @@ public:
     StringPairArray (const StringPairArray& other);
 
     /** Destructor. */
-    ~StringPairArray() = default;
+    ~StringPairArray();
 
     /** Copies the contents of another string array into this one */
     StringPairArray& operator= (const StringPairArray& other);

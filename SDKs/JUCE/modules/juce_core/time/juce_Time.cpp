@@ -178,21 +178,6 @@ namespace TimeHelpers
     }
 
     static Atomic<uint32> lastMSCounterValue { (uint32) 0 };
-
-    static String getUTCOffsetString (int utcOffsetSeconds, bool includeSemiColon)
-    {
-        if (const auto seconds = utcOffsetSeconds)
-        {
-            auto minutes = seconds / 60;
-
-            return String::formatted (includeSemiColon ? "%+03d:%02d"
-                                                       : "%+03d%02d",
-                                      minutes / 60,
-                                      abs (minutes) % 60);
-        }
-
-        return "Z";
-    }
 }
 
 //==============================================================================
@@ -421,7 +406,17 @@ int Time::getUTCOffsetSeconds() const noexcept
 
 String Time::getUTCOffsetString (bool includeSemiColon) const
 {
-    return TimeHelpers::getUTCOffsetString (getUTCOffsetSeconds(), includeSemiColon);
+    if (auto seconds = getUTCOffsetSeconds())
+    {
+        auto minutes = seconds / 60;
+
+        return String::formatted (includeSemiColon ? "%+03d:%02d"
+                                                   : "%+03d%02d",
+                                  minutes / 60,
+                                  minutes % 60);
+    }
+
+    return "Z";
 }
 
 String Time::toISO8601 (bool includeDividerCharacters) const
@@ -634,12 +629,6 @@ public:
         expect (t.getTimeZone().isNotEmpty());
         expect (t.getUTCOffsetString (true)  == "Z" || t.getUTCOffsetString (true).length() == 6);
         expect (t.getUTCOffsetString (false) == "Z" || t.getUTCOffsetString (false).length() == 5);
-
-        expect (TimeHelpers::getUTCOffsetString (-(3 * 60 + 15) * 60, true) == "-03:15");
-        expect (TimeHelpers::getUTCOffsetString (-(3 * 60 + 30) * 60, true) == "-03:30");
-        expect (TimeHelpers::getUTCOffsetString (-(3 * 60 + 45) * 60, true) == "-03:45");
-
-        expect (TimeHelpers::getUTCOffsetString ((3 * 60 + 15) * 60, true) == "+03:15");
 
         expect (Time::fromISO8601 (t.toISO8601 (true)) == t);
         expect (Time::fromISO8601 (t.toISO8601 (false)) == t);

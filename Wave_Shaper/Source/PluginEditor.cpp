@@ -12,7 +12,7 @@
 #include "FolderManager.h"
 
 //==============================================================================
-CoursePluginAudioProcessorEditor::CoursePluginAudioProcessorEditor (CoursePluginAudioProcessor& p)
+WaveShaperAudioProcessorEditor::WaveShaperAudioProcessorEditor (WaveShaperAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
     // Lets set the properties we want to initialize on the slider.
@@ -67,13 +67,13 @@ CoursePluginAudioProcessorEditor::CoursePluginAudioProcessorEditor (CoursePlugin
     setSize(TotalNumberParameters * 100 + 100, 120);
 }
 
-CoursePluginAudioProcessorEditor::~CoursePluginAudioProcessorEditor()
+WaveShaperAudioProcessorEditor::~WaveShaperAudioProcessorEditor()
 {
     setLookAndFeel(nullptr);
 }
 
 //==============================================================================
-void CoursePluginAudioProcessorEditor::paint(juce::Graphics& g)
+void WaveShaperAudioProcessorEditor::paint(juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     
@@ -87,7 +87,7 @@ void CoursePluginAudioProcessorEditor::paint(juce::Graphics& g)
     }
 }
 
-void CoursePluginAudioProcessorEditor::resized()
+void WaveShaperAudioProcessorEditor::resized()
 {
     for (int i = 0; i < TotalNumberParameters; i++) {
         mSliders[i]->setBounds(100 * i, 0, 100, 100);
@@ -97,7 +97,7 @@ void CoursePluginAudioProcessorEditor::resized()
     mPresetOptions.setBounds(getWidth()-100, 50, 100, 50);
 }
 
-void CoursePluginAudioProcessorEditor::_updatePresetComboBoxOptions()
+void WaveShaperAudioProcessorEditor::_updatePresetComboBoxOptions()
 {
     mPresetOptions.clear(dontSendNotification);
     

@@ -103,16 +103,6 @@ public:
     */
     MouseCursor (const Image& image, int hotSpotX, int hotSpotY, float scaleFactor);
 
-    /** Creates a custom cursor from an image.
-
-        @param image    the image to use for the cursor - if this is bigger than the
-                        system can manage, it might get scaled down first, and might
-                        also have to be turned to black-and-white if it can't do colour
-                        cursors.
-        @param hotSpot the position of the cursor's hotspot within the image
-    */
-    MouseCursor (const ScaledImage& image, Point<int> hotSpot);
-
     //==============================================================================
     /** Creates a copy of another cursor object. */
     MouseCursor (const MouseCursor&);
@@ -176,13 +166,15 @@ public:
 private:
     //==============================================================================
     class SharedCursorHandle;
-    std::shared_ptr<SharedCursorHandle> cursorHandle;
-
-    class PlatformSpecificHandle;
+    friend class SharedCursorHandle;
+    SharedCursorHandle* cursorHandle = nullptr;
 
     friend class MouseInputSourceInternal;
     void showInWindow (ComponentPeer*) const;
-    PlatformSpecificHandle* getHandle() const noexcept;
+    void* getHandle() const noexcept;
+
+    static void* createStandardMouseCursor (MouseCursor::StandardCursorType);
+    static void deleteMouseCursor (void* cursorHandle, bool isStandard);
 
     JUCE_LEAK_DETECTOR (MouseCursor)
 };

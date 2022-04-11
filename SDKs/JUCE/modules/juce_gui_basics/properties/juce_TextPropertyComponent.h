@@ -73,7 +73,7 @@ public:
 
     /** Creates a text property component with a default value.
 
-        @param valueToControl The ValueTreePropertyWithDefault that is controlled by the TextPropertyComponent.
+        @param valueToControl The ValueWithDefault that is controlled by the TextPropertyComponent.
         @param propertyName   The name of the property
         @param maxNumChars    If not zero, then this specifies the maximum allowable length of
                               the string. If zero, then the string will have no length limit.
@@ -82,12 +82,13 @@ public:
 
         @see TextEditor, setEditable
     */
-    TextPropertyComponent (const ValueTreePropertyWithDefault& valueToControl,
+    TextPropertyComponent (ValueWithDefault& valueToControl,
                            const String& propertyName,
                            int maxNumChars,
                            bool isMultiLine,
                            bool isEditable = true);
 
+    /** Destructor. */
     ~TextPropertyComponent() override;
 
     //==============================================================================
@@ -166,18 +167,21 @@ public:
     virtual void textWasEdited();
 
 private:
+    class RemapperValueSourceWithDefault;
+    class LabelComp;
+    friend class LabelComp;
+
     //==============================================================================
     void callListeners();
     void createEditor (int maxNumChars, bool isEditable);
 
     //==============================================================================
-    class LabelComp;
+    bool isMultiLine;
 
-    const bool isMultiLine;
-
-    ValueTreePropertyWithDefault value;
     std::unique_ptr<LabelComp> textEditor;
     ListenerList<Listener> listenerList;
+
+    WeakReference<ValueWithDefault> valueWithDefault;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TextPropertyComponent)

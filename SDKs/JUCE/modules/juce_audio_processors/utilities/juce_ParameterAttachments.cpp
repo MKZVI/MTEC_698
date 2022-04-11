@@ -180,8 +180,10 @@ void SliderParameterAttachment::setValue (float newValue)
 
 void SliderParameterAttachment::sliderValueChanged (Slider*)
 {
-    if (! ignoreCallbacks)
-        attachment.setValueAsPartOfGesture ((float) slider.getValue());
+    if (ignoreCallbacks || ModifierKeys::currentModifiers.isRightButtonDown())
+        return;
+
+    attachment.setValueAsPartOfGesture ((float) slider.getValue());
 }
 
 //==============================================================================

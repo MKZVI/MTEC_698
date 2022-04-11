@@ -10,7 +10,7 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-CoursePluginAudioProcessor::CoursePluginAudioProcessor()
+WaveShaperAudioProcessor::WaveShaperAudioProcessor()
      : AudioProcessor (BusesProperties()
                        .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true))
@@ -20,17 +20,17 @@ CoursePluginAudioProcessor::CoursePluginAudioProcessor()
     mPropertyManager.reset(new PropertyManager(this));
 }
 
-CoursePluginAudioProcessor::~CoursePluginAudioProcessor()
+WaveShaperAudioProcessor::~WaveShaperAudioProcessor()
 {
 }
 
 //==============================================================================
-const juce::String CoursePluginAudioProcessor::getName() const
+const juce::String WaveShaperAudioProcessor::getName() const
 {
     return JucePlugin_Name;
 }
 
-bool CoursePluginAudioProcessor::acceptsMidi() const
+bool WaveShaperAudioProcessor::acceptsMidi() const
 {
    #if JucePlugin_WantsMidiInput
     return true;
@@ -39,7 +39,7 @@ bool CoursePluginAudioProcessor::acceptsMidi() const
    #endif
 }
 
-bool CoursePluginAudioProcessor::producesMidi() const
+bool WaveShaperAudioProcessor::producesMidi() const
 {
    #if JucePlugin_ProducesMidiOutput
     return true;
@@ -48,7 +48,7 @@ bool CoursePluginAudioProcessor::producesMidi() const
    #endif
 }
 
-bool CoursePluginAudioProcessor::isMidiEffect() const
+bool WaveShaperAudioProcessor::isMidiEffect() const
 {
    #if JucePlugin_IsMidiEffect
     return true;
@@ -57,50 +57,49 @@ bool CoursePluginAudioProcessor::isMidiEffect() const
    #endif
 }
 
-double CoursePluginAudioProcessor::getTailLengthSeconds() const
+double WaveShaperAudioProcessor::getTailLengthSeconds() const
 {
     return 0.0;
 }
 
-int CoursePluginAudioProcessor::getNumPrograms()
+int WaveShaperAudioProcessor::getNumPrograms()
 {
     return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
                 // so this should be at least 1, even if you're not really implementing programs.
 }
 
-int CoursePluginAudioProcessor::getCurrentProgram()
+int WaveShaperAudioProcessor::getCurrentProgram()
 {
     return 0;
 }
 
-void CoursePluginAudioProcessor::setCurrentProgram (int index)
+void WaveShaperAudioProcessor::setCurrentProgram (int index)
 {
 }
 
-const juce::String CoursePluginAudioProcessor::getProgramName (int index)
+const juce::String WaveShaperAudioProcessor::getProgramName (int index)
 {
     return {};
 }
 
-void CoursePluginAudioProcessor::changeProgramName (int index, const juce::String& newName)
+void WaveShaperAudioProcessor::changeProgramName (int index, const juce::String& newName)
 {
 }
 
 //==============================================================================
-void CoursePluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void WaveShaperAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    mDelayLeft.initialize(sampleRate, samplesPerBlock);
-    mDelayRight.initialize(sampleRate, samplesPerBlock);
+
 }
 
-void CoursePluginAudioProcessor::releaseResources()
+void WaveShaperAudioProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool CoursePluginAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
+bool WaveShaperAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
   #if JucePlugin_IsMidiEffect
     juce::ignoreUnused (layouts);
@@ -125,7 +124,7 @@ bool CoursePluginAudioProcessor::isBusesLayoutSupported (const BusesLayout& layo
 }
 #endif
 
-void CoursePluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
+void WaveShaperAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
@@ -134,60 +133,45 @@ void CoursePluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
     
-    mDelayLeft.setParameters(mParameterManager->getCurrentValue(DELAY_TIME_SECONDS),
-                             mParameterManager->getCurrentValue(DELAY_FEEDBACK),
-                             mParameterManager->getCurrentValue(DELAY_MIX),
-                             mParameterManager->getCurrentValue(DELAY_FEEDBACK_LOWPASS),
-                             mParameterManager->getCurrentValue(DELAY_FEEDBACK_HIGHPASS));
-    
-    mDelayRight.setParameters(mParameterManager->getCurrentValue(DELAY_TIME_SECONDS),
-                              mParameterManager->getCurrentValue(DELAY_FEEDBACK),
-                              mParameterManager->getCurrentValue(DELAY_MIX),
-                              mParameterManager->getCurrentValue(DELAY_FEEDBACK_LOWPASS),
-                              mParameterManager->getCurrentValue(DELAY_FEEDBACK_HIGHPASS));
-    
     if (wrapperType == AudioProcessor::wrapperType_Standalone && SIMPLE_SAMPLE_IN_STANDALONE) {
         _generateSimpleSample(buffer);
     }
-    
-    mDelayLeft.processBlock(buffer.getWritePointer(0), buffer.getNumSamples());
-    mDelayRight.processBlock(buffer.getWritePointer(1), buffer.getNumSamples());
 }
 
-ParameterManager* CoursePluginAudioProcessor::getParameterManager()
+ParameterManager* WaveShaperAudioProcessor::getParameterManager()
 {
     return mParameterManager.get();
 }
 
-PresetManager* CoursePluginAudioProcessor::getPresetManager()
+PresetManager* WaveShaperAudioProcessor::getPresetManager()
 {
     return mPresetManager.get();
 }
 
-PropertyManager* CoursePluginAudioProcessor::getPropertyManager()
+PropertyManager* WaveShaperAudioProcessor::getPropertyManager()
 {
     return mPropertyManager.get();
 }
 
 
-AudioProcessor* CoursePluginAudioProcessor::getAudioProcessor()
+AudioProcessor* WaveShaperAudioProcessor::getAudioProcessor()
 {
     return this;
 }
 
 //==============================================================================
-bool CoursePluginAudioProcessor::hasEditor() const
+bool WaveShaperAudioProcessor::hasEditor() const
 {
     return true; // (change this to false if you choose to not supply an editor)
 }
 
-juce::AudioProcessorEditor* CoursePluginAudioProcessor::createEditor()
+juce::AudioProcessorEditor* WaveShaperAudioProcessor::createEditor()
 {
-    return new CoursePluginAudioProcessorEditor (*this);
+    return new WaveShaperAudioProcessorEditor (*this);
 }
 
 //==============================================================================
-void CoursePluginAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
+void WaveShaperAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
     // Get the underlying ValueTree from out "Parameter Value Tree"
     auto tree_state = mParameterManager->getValueTree()->copyState();
@@ -203,7 +187,7 @@ void CoursePluginAudioProcessor::getStateInformation(juce::MemoryBlock& destData
     
 }
 
-void CoursePluginAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
+void WaveShaperAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
 {
     std::unique_ptr<juce::XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
 
@@ -217,7 +201,7 @@ void CoursePluginAudioProcessor::setStateInformation(const void* data, int sizeI
     }
 }
 
-void CoursePluginAudioProcessor::_generateSimpleSample(AudioBuffer<float>& inBuffer)
+void WaveShaperAudioProcessor::_generateSimpleSample(AudioBuffer<float>& inBuffer)
 {
 #if SIMPLE_SAMPLE_IN_STANDALONE
     static int mPhase = 0;
@@ -228,7 +212,7 @@ void CoursePluginAudioProcessor::_generateSimpleSample(AudioBuffer<float>& inBuf
         
         String dir_name = dir.getFileName();
         
-        while (dir_name.contains("Week") == false) {
+        while (dir_name.contains("Wave_Shaper") == false) {
             dir = dir.getParentDirectory();
             dir_name = dir.getFileName();
         }
@@ -259,5 +243,5 @@ void CoursePluginAudioProcessor::_generateSimpleSample(AudioBuffer<float>& inBuf
 // This creates new instances of the plugin..
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-    return new CoursePluginAudioProcessor();
+    return new WaveShaperAudioProcessor();
 }

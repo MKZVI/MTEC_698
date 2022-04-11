@@ -1,6 +1,6 @@
 //
 //  AudioHelpers.h
-//  Course Plugin
+//  Wave Shaper
 //
 //  Created by Jacob Penn on 3/1/22.
 //

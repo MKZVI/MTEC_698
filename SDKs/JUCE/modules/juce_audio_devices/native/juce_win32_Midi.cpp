@@ -258,7 +258,7 @@ private:
 
         struct MidiHeader
         {
-            MidiHeader() = default;
+            MidiHeader() {}
 
             void prepare (HMIDIIN device)
             {

@@ -36,10 +36,7 @@ class JUCE_API  FileSearchPath
 public:
     //==============================================================================
     /** Creates an empty search path. */
-    FileSearchPath() = default;
-
-    /** Destructor. */
-    ~FileSearchPath() = default;
+    FileSearchPath();
 
     /** Creates a search path from a string of pathnames.
 
@@ -55,6 +52,9 @@ public:
 
     /** Copies another search path. */
     FileSearchPath& operator= (const FileSearchPath&);
+
+    /** Destructor. */
+    ~FileSearchPath();
 
     /** Uses a string containing a list of pathnames to re-initialise this list.
 

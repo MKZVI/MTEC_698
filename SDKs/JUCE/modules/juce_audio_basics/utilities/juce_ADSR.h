@@ -124,7 +124,6 @@ public:
         }
         else
         {
-            envelopeVal = parameters.sustain;
             state = State::sustain;
         }
     }

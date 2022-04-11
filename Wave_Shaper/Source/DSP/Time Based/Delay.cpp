@@ -1,6 +1,6 @@
 //
 //  Delay.cpp
-//  Course Plugin - Shared Code
+//  Wave Shaper - Shared Code
 //
 //  Created by Jacob Penn on 2/22/22.
 //

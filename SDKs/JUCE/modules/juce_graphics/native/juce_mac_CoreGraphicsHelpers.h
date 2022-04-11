@@ -94,7 +94,7 @@ namespace
    #endif
 }
 
-CGImageRef juce_createCoreGraphicsImage (const Image&, CGColorSpaceRef);
+CGImageRef juce_createCoreGraphicsImage (const Image&, CGColorSpaceRef, bool mustOutliveSource);
 CGContextRef juce_getImageContext (const Image&);
 
 #if JUCE_IOS
@@ -102,7 +102,7 @@ CGContextRef juce_getImageContext (const Image&);
 #endif
 
 #if JUCE_MAC
- NSImage* imageToNSImage (const ScaledImage& image);
+ NSImage* imageToNSImage (const Image& image, float scaleFactor = 1.0f);
 #endif
 
 } // namespace juce

@@ -72,7 +72,7 @@ public:
     }
 
     //==============================================================================
-    bool hasChangedSinceSaved() const
+    bool hasChangedSinceSaved()
     {
         return changedSinceSave;
     }
@@ -326,7 +326,7 @@ private:
         auto oldFile = documentFile;
         documentFile = newFile;
 
-        auto tidyUp = [parent, newFile, oldFile, showMessageOnFailure, showWaitCursor, completed] (Result result)
+        auto tidyUp = [parent, newFile, oldFile, showMessageOnFailure, showWaitCursor, completed]
         {
             if (parent.shouldExitAsyncCallback())
                 return;
@@ -335,6 +335,8 @@ private:
 
             if (showWaitCursor)
                 MouseCursor::hideWaitCursor();
+
+            auto result = Result::fail (TRANS ("The file doesn't exist"));
 
             if (showMessageOnFailure)
                 AlertWindow::showMessageBoxAsync (MessageBoxIconType::WarningIcon,
@@ -371,7 +373,7 @@ private:
                     return;
                 }
 
-                tidyUp (result);
+                tidyUp();
             };
 
             doLoadDocument (newFile, std::move (afterLoading));
@@ -379,7 +381,7 @@ private:
             return;
         }
 
-        tidyUp (Result::fail (TRANS ("The file doesn't exist")));
+        tidyUp();
     }
 
     //==============================================================================

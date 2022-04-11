@@ -46,7 +46,7 @@
 #if ! JUCE_DONT_DECLARE_PROJECTINFO
 namespace ProjectInfo
 {
-    const char* const  projectName    = "Course Plugin";
+    const char* const  projectName    = "Wave Shaper";
     const char* const  companyName    = "";
     const char* const  versionString  = "1.0.0";
     const int          versionNumber  = 0x10000;
