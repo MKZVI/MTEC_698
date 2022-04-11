@@ -10,13 +10,13 @@
 
 #include <JuceHeader.h>
 
-// INCLUDE OUR SINEWAVE
 #include "InMemorySample.h"
-#include "Delay.h"
 #include "ParameterManager.h"
 #include "PresetManager.h"
 #include "ProcessorInterface.h"
 #include "PropertyManager.h"
+
+#include "SoftClipper.h"
 
 #define SIMPLE_SAMPLE_IN_STANDALONE 1
 
@@ -71,6 +71,8 @@ public:
 private:
     
     void _generateSimpleSample(AudioBuffer<float>& inBuffer);
+    
+    SoftClipper mClipper;
     
 #if SIMPLE_SAMPLE_IN_STANDALONE
     InMemorySample mTestingSample;

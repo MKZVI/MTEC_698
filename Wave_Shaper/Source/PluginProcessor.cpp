@@ -136,6 +136,19 @@ void WaveShaperAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     if (wrapperType == AudioProcessor::wrapperType_Standalone && SIMPLE_SAMPLE_IN_STANDALONE) {
         _generateSimpleSample(buffer);
     }
+    
+    float* left = buffer.getWritePointer(0);
+    float* right = buffer.getWritePointer(1);
+    
+    float drive = getParameterManager()->getCurrentValue(DRIVE);
+    
+    for (int i = 0; i < buffer.getNumSamples(); i++) {
+        left[i] *= drive;
+        right[i] *= drive;
+        
+        mClipper.processSample(left[i]);
+        mClipper.processSample(right[i]);
+    }
 }
 
 ParameterManager* WaveShaperAudioProcessor::getParameterManager()
