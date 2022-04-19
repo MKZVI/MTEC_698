@@ -9,6 +9,9 @@
         <GROUP id="{B499916E-AD92-7239-6B6E-38A045525EB8}" name="Generators">
           <FILE id="qZl8ml" name="SineWave.cpp" compile="1" resource="0" file="Source/DSP/Generators/SineWave.cpp"/>
           <FILE id="Unc5K4" name="SineWave.h" compile="0" resource="0" file="Source/DSP/Generators/SineWave.h"/>
+          <FILE id="iKYW2r" name="TriangleWave.cpp" compile="1" resource="0"
+                file="Source/DSP/Generators/TriangleWave.cpp"/>
+          <FILE id="FyAQMS" name="TriangleWave.h" compile="0" resource="0" file="Source/DSP/Generators/TriangleWave.h"/>
         </GROUP>
         <GROUP id="{C3B15297-AED3-6FBE-A44A-7B4E17EE1F0E}" name="Samples">
           <FILE id="NmvWxx" name="InMemorySample.cpp" compile="1" resource="0"
@@ -23,6 +26,12 @@
           <FILE id="ruFrWm" name="Delay.h" compile="0" resource="0" file="Source/DSP/Time Based/Delay.h"/>
         </GROUP>
         <GROUP id="{A41C3D61-0349-C6E8-E715-964796F48795}" name="Waveshaping">
+          <FILE id="wVFLos" name="Distortions.cpp" compile="1" resource="0" file="Source/DSP/Waveshaping/Distortions.cpp"/>
+          <FILE id="YSy516" name="Distortions.h" compile="0" resource="0" file="Source/DSP/Waveshaping/Distortions.h"/>
+          <FILE id="LfHuvO" name="SineWaveFolder.cpp" compile="1" resource="0"
+                file="Source/DSP/Waveshaping/SineWaveFolder.cpp"/>
+          <FILE id="zrvlAZ" name="SineWaveFolder.h" compile="0" resource="0"
+                file="Source/DSP/Waveshaping/SineWaveFolder.h"/>
           <FILE id="kUriNO" name="SoftClipper.cpp" compile="1" resource="0" file="Source/DSP/Waveshaping/SoftClipper.cpp"/>
           <FILE id="I1iRGb" name="SoftClipper.h" compile="0" resource="0" file="Source/DSP/Waveshaping/SoftClipper.h"/>
         </GROUP>

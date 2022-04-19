@@ -17,6 +17,7 @@
 #include "PropertyManager.h"
 
 #include "SoftClipper.h"
+#include "SineWaveFolder.h"
 
 #define SIMPLE_SAMPLE_IN_STANDALONE 1
 
@@ -73,6 +74,7 @@ private:
     void _generateSimpleSample(AudioBuffer<float>& inBuffer);
     
     SoftClipper mClipper;
+    SineWaveFolder mSinFolder;
     
 #if SIMPLE_SAMPLE_IN_STANDALONE
     InMemorySample mTestingSample;

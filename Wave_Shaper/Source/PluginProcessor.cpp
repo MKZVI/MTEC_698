@@ -146,8 +146,10 @@ void WaveShaperAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
         left[i] *= drive;
         right[i] *= drive;
         
-        mClipper.processSample(left[i]);
-        mClipper.processSample(right[i]);
+        //mClipper.processSample(left[i]);
+        //mClipper.processSample(right[i]);
+        mSinFolder.processSample(left[i]);
+        mSinFolder.processSample(right[i]);
     }
 }
 
@@ -230,7 +232,7 @@ void WaveShaperAudioProcessor::_generateSimpleSample(AudioBuffer<float>& inBuffe
             dir_name = dir.getFileName();
         }
         
-        String file_name = "break.wav";
+        String file_name = "OB_Chord_1.wav";
         
         File sample = dir
         .getChildFile("Test_Audio")
