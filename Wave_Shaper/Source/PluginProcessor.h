@@ -62,7 +62,6 @@ public:
     int getNumPrograms() override;
     int getCurrentProgram() override;
     void setCurrentProgram (int index) override;
-    void process (juce::dsp::ProcessContextReplacing<float> context);
     const juce::String getProgramName (int index) override;
     void changeProgramName (int index, const juce::String& newName) override;
     void releaseResources() override;

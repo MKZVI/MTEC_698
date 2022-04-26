@@ -2,7 +2,7 @@
 
 <JUCERPROJECT id="ua5Pug" name="Wave Shaper" projectType="audioplug" useAppConfig="0"
               addUsingNamespaceToJuceHeader="1" jucerFormatVersion="1" defines="JUCE_MODAL_LOOPS_PERMITTED=1"
-              displaySplashScreen="1">
+              displaySplashScreen="1" headerPath="../../Source/DSP&#13;../../Source/DSP/Generators&#13;../../Source/DSP/Samples&#13;../../Source/DSP/Time Based&#13;../../Source/DSP/WaveShaping&#10;../../Source/DSP/Filters&#13;../../Source/Managers&#13;../../Source/Managers/Folder Manager&#13;../../Source/Managers/Interfaces&#13;../../Source/Managers/Parameter Manager&#13;../../Source/Managers/Preset Manager&#13;../../Source/Managers/Property Manager&#13;../../Source/UI&#10;">
   <MAINGROUP id="mIDlkp" name="Wave Shaper">
     <GROUP id="{CD29536D-8845-4D04-0286-4D08E4475253}" name="Source">
       <GROUP id="{32ED57E1-281F-3DD2-5145-3DAC1385903E}" name="DSP">

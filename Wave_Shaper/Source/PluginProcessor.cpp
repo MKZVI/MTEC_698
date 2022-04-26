@@ -131,10 +131,6 @@ bool WaveShaperAudioProcessor::isBusesLayoutSupported (const BusesLayout& layout
 #endif
 
 
-void WaveShaperAudioProcessor::process(juce::dsp::ProcessContextReplacing<float> context)
-{
-    
-}
 
 
 void WaveShaperAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
@@ -163,10 +159,20 @@ void WaveShaperAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
         //mClipper.processSample(right[i]);
         mSinFolder.processSample(left[i]);
         mSinFolder.processSample(right[i]);
+
+
+
         
         
-        
+  
     }
+
+
+        auto block = juce::dsp::AudioBlock<float>(buffer);
+        juce::dsp::ProcessContextReplacing<float> context(block); 
+        mPhaser.process(context);
+
+
 }
 
 ParameterManager* WaveShaperAudioProcessor::getParameterManager()
