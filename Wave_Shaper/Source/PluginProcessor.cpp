@@ -86,10 +86,16 @@ void WaveShaperAudioProcessor::changeProgramName (int index, const juce::String&
 {
 }
 
+
 //==============================================================================
 void WaveShaperAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-
+    juce::dsp::ProcessSpec spec;
+    spec.sampleRate = sampleRate;
+    spec.maximumBlockSize = samplesPerBlock;
+    spec.numChannels = getTotalNumOutputChannels();
+    
+    mPhaser.prepare(spec);
 }
 
 void WaveShaperAudioProcessor::releaseResources()
@@ -124,6 +130,13 @@ bool WaveShaperAudioProcessor::isBusesLayoutSupported (const BusesLayout& layout
 }
 #endif
 
+
+void WaveShaperAudioProcessor::process(juce::dsp::ProcessContextReplacing<float> context)
+{
+    
+}
+
+
 void WaveShaperAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
@@ -150,6 +163,9 @@ void WaveShaperAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
         //mClipper.processSample(right[i]);
         mSinFolder.processSample(left[i]);
         mSinFolder.processSample(right[i]);
+        
+        
+        
     }
 }
 

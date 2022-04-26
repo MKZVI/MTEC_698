@@ -22,10 +22,23 @@ public:
     
     ~SineWaveFolder();
     
+    void initialize(float inSampleRate, int inBlockSize);
+    
+    void setParameters(float inGain, float inLPFreq, float inHPFreq);
+    
     void processSample(float inSample);
     
     
 private:
+
+    float mSampleRate;
+    
+    juce::dsp::IIR::Coefficients<float> mHighpassCoefficients;
+    juce::dsp::IIR::Filter<float> mHighPassFilter;
+    
+    juce::dsp::IIR::Coefficients<float> mLowpassCoefficients;
+    juce::dsp::IIR::Filter<float> mLowpassFilter;
+
 };
 
 

@@ -62,6 +62,7 @@ public:
     int getNumPrograms() override;
     int getCurrentProgram() override;
     void setCurrentProgram (int index) override;
+    void process (juce::dsp::ProcessContextReplacing<float> context);
     const juce::String getProgramName (int index) override;
     void changeProgramName (int index, const juce::String& newName) override;
     void releaseResources() override;
@@ -75,6 +76,7 @@ private:
     
     SoftClipper mClipper;
     SineWaveFolder mSinFolder;
+    juce::dsp::Phaser<float> mPhaser;
     
 #if SIMPLE_SAMPLE_IN_STANDALONE
     InMemorySample mTestingSample;

@@ -20,7 +20,30 @@ SineWaveFolder::~SineWaveFolder()
     
 }
 
+void SineWaveFolder::initialize(float inSampleRate, int inBlockSize)
+{
+    juce::dsp::ProcessSpec spec;
+    spec.sampleRate = inSampleRate;
+    spec.maximumBlockSize = inBlockSize;
+    spec.numChannels = 1;
+    
+    mHighPassFilter.prepare(spec);
+    mLowpassFilter.prepare(spec);
+    
+}
+
+void SineWaveFolder::setParameters(float inGain, float inLPFreq, float inHPFreq)
+{
+    mHighPassFilter.coefficients = mHighpassCoefficients.makeHighPass(mSampleRate, inHPFreq);
+    mLowpassFilter.coefficients = mLowpassCoefficients.makeLowPass(mSampleRate, inLPFreq);
+}
+
 void SineWaveFolder::processSample(float inSample)
 {
-    inSample = std::sin(inSample);
+    float output_sample = std::sin(inSample);
+    
+    output_sample = mHighPassFilter.processSample(output_sample);
+    output_sample = mLowpassFilter.processSample(output_sample);
+    
+    inSample = output_sample;
 }
