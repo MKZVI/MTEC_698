@@ -6,7 +6,15 @@
   <MAINGROUP id="mIDlkp" name="Wave Shaper">
     <GROUP id="{CD29536D-8845-4D04-0286-4D08E4475253}" name="Source">
       <GROUP id="{32ED57E1-281F-3DD2-5145-3DAC1385903E}" name="DSP">
-        <GROUP id="{F47DCDCD-37B0-6FE6-25CA-F449B730AEFE}" name="Filters"/>
+        <GROUP id="{F47DCDCD-37B0-6FE6-25CA-F449B730AEFE}" name="Filters">
+          <FILE id="MkFYgR" name="HighPassFilter.cpp" compile="1" resource="0"
+                file="Source/DSP/Filters/HighPassFilter.cpp"/>
+          <FILE id="WX3dyy" name="HighPassFilter.h" compile="0" resource="0"
+                file="Source/DSP/Filters/HighPassFilter.h"/>
+          <FILE id="qFhVWr" name="LowPassFilter.cpp" compile="1" resource="0"
+                file="Source/DSP/Filters/LowPassFilter.cpp"/>
+          <FILE id="hqtfpV" name="LowPassFilter.h" compile="0" resource="0" file="Source/DSP/Filters/LowPassFilter.h"/>
+        </GROUP>
         <GROUP id="{B499916E-AD92-7239-6B6E-38A045525EB8}" name="Generators">
           <FILE id="qZl8ml" name="SineWave.cpp" compile="1" resource="0" file="Source/DSP/Generators/SineWave.cpp"/>
           <FILE id="Unc5K4" name="SineWave.h" compile="0" resource="0" file="Source/DSP/Generators/SineWave.h"/>

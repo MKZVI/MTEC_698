@@ -28,10 +28,13 @@ public:
     
     void processSample(float inSample);
     
+    //void setDrive(float inDrive);
+    
     
 private:
 
     float mSampleRate;
+    float mDrive;
     
     juce::dsp::IIR::Coefficients<float> mHighpassCoefficients;
     juce::dsp::IIR::Filter<float> mHighPassFilter;

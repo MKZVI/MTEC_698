@@ -25,7 +25,7 @@ static const juce::StringArray PARAMETER_NAMES {
  */
 static const juce::Array<juce::NormalisableRange<float>> PARAMETER_RANGES {
     // DRIVE
-    juce::NormalisableRange<float>(1.f, 40.f, 0.f, 1.f),
+    juce::NormalisableRange<float>(1.f, 100.f, 0.f, 1.f),
 };
 
 /* DEFAULT VALUES
