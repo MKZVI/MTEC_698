@@ -37,6 +37,7 @@ void SineWaveFolder::setParameters(float inGain, float inLPFreq, float inHPFreq)
 {
     mHighPassFilter.coefficients = mHighpassCoefficients.makeHighPass(mSampleRate, inHPFreq);
     mLowpassFilter.coefficients = mLowpassCoefficients.makeLowPass(mSampleRate, inLPFreq);
+    inGain = mDrive;
 }
 
 
@@ -47,10 +48,10 @@ void SineWaveFolder::processSample(float inSample)
     
     float output_sample = mLowpassFilter.processSample(inSample);
     
-    output_sample = std::sin(inSample * mDrive);
+    output_sample = std::tanh(std::sin(inSample * mDrive));
     
     output_sample = mHighPassFilter.processSample(output_sample);
     
     
-    //inSample = output_sample;
+    
 }

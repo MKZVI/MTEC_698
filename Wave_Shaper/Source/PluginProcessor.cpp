@@ -95,7 +95,10 @@ void WaveShaperAudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
     spec.maximumBlockSize = samplesPerBlock;
     spec.numChannels = getTotalNumOutputChannels();
     
-    mPhaser.prepare(spec);
+    mPhaserLeft.prepare(spec);
+    mPhaserRight.prepare(spec);
+    
+    mSinFolder.initialize(sampleRate, samplesPerBlock);
 }
 
 void WaveShaperAudioProcessor::releaseResources()
@@ -149,11 +152,30 @@ void WaveShaperAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     float* left = buffer.getWritePointer(0);
     float* right = buffer.getWritePointer(1);
     
-    float drive = getParameterManager()->getCurrentValue(DRIVE);
+    //float drive = getParameterManager()->getCurrentValue(DRIVE);
+    mSinFolder.setParameters(mParameterManager->getCurrentValue(DRIVE),
+                             mParameterManager->getCurrentValue(FLT1HZ),
+                             mParameterManager->getCurrentValue(FLT2HZ));
+    
+    
+    mPhaserLeft.setRate(mParameterManager->getCurrentValue(RATE));
+    mPhaserRight.setRate(mParameterManager->getCurrentValue(RATE));
+    mPhaserLeft.setDepth(mParameterManager->getCurrentValue(DEPTH));
+    mPhaserRight.setDepth(mParameterManager->getCurrentValue(DEPTH));
+    mPhaserLeft.setCentreFrequency(mParameterManager->getCurrentValue(CTRHZ));
+    mPhaserRight.setCentreFrequency(mParameterManager->getCurrentValue(CTRHZ));
+    mPhaserLeft.setFeedback(mParameterManager->getCurrentValue(FDBK));
+    mPhaserRight.setFeedback(mParameterManager->getCurrentValue(FDBK));
+    mPhaserLeft.setMix(mParameterManager->getCurrentValue(MIX));
+    mPhaserRight.setMix(mParameterManager->getCurrentValue(MIX));
+    
+    
+    
+    
     
     for (int i = 0; i < buffer.getNumSamples(); i++) {
-        left[i] *= drive;
-        right[i] *= drive;
+        left[i] *= mParameterManager->getCurrentValue(DRIVE);
+        right[i] *= mParameterManager->getCurrentValue(DRIVE);
         
         //mClipper.processSample(left[i]);
         //mClipper.processSample(right[i]);
@@ -170,7 +192,8 @@ void WaveShaperAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
 
         auto block = juce::dsp::AudioBlock<float>(buffer);
         juce::dsp::ProcessContextReplacing<float> context(block); 
-        mPhaser.process(context);
+        mPhaserLeft.process(context);
+        mPhaserRight.process(context);
 
 
 }

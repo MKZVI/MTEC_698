@@ -13,7 +13,7 @@
 #ifndef SineWaveFolder_h
 #define SineWaveFolder_h
 
-#include "Juceheader.h"
+#include "JuceHeader.h"
 
 class SineWaveFolder
 {

@@ -75,7 +75,8 @@ private:
     
     SoftClipper mClipper;
     SineWaveFolder mSinFolder;
-    juce::dsp::Phaser<float> mPhaser;
+    juce::dsp::Phaser<float> mPhaserLeft;
+    juce::dsp::Phaser<float> mPhaserRight;
     
 #if SIMPLE_SAMPLE_IN_STANDALONE
     InMemorySample mTestingSample;
