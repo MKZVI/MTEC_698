@@ -98,7 +98,7 @@ void WaveShaperAudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
     mPhaserLeft.prepare(spec);
     mPhaserRight.prepare(spec);
     
-    mSinFolder.initialize(sampleRate, samplesPerBlock);
+    //mClipper.initialize(sampleRate, samplesPerBlock);
 }
 
 void WaveShaperAudioProcessor::releaseResources()
@@ -152,10 +152,13 @@ void WaveShaperAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     float* left = buffer.getWritePointer(0);
     float* right = buffer.getWritePointer(1);
     
-    //float drive = getParameterManager()->getCurrentValue(DRIVE);
-    mSinFolder.setParameters(mParameterManager->getCurrentValue(DRIVE),
-                             mParameterManager->getCurrentValue(FLT1HZ),
-                             mParameterManager->getCurrentValue(FLT2HZ));
+    rmsLevelLeft = Decibels::gainToDecibels(buffer.getRMSLevel(0, 0, buffer.getNumSamples()));
+    rmsLevelRight = Decibels::gainToDecibels(buffer.getRMSLevel(1, 0, buffer.getNumSamples()));
+    
+    float drive = getParameterManager()->getCurrentValue(DRIVE);
+    //mSinFolder.setParameters(mParameterManager->getCurrentValue(DRIVE));
+                             //mParameterManager->getCurrentValue(FLT1HZ),
+                             //mParameterManager->getCurrentValue(FLT2HZ));
     
     
     mPhaserLeft.setRate(mParameterManager->getCurrentValue(RATE));
@@ -177,10 +180,10 @@ void WaveShaperAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
         left[i] *= mParameterManager->getCurrentValue(DRIVE);
         right[i] *= mParameterManager->getCurrentValue(DRIVE);
         
-        //mClipper.processSample(left[i]);
-        //mClipper.processSample(right[i]);
-        mSinFolder.processSample(left[i]);
-        mSinFolder.processSample(right[i]);
+        mClipper.processSample(left[i]);
+        mClipper.processSample(right[i]);
+        //mSinFolder.processSample(left[i]);
+        //mSinFolder.processSample(right[i]);
 
 
 

@@ -73,6 +73,8 @@ private:
     
     void _generateSimpleSample(AudioBuffer<float>& inBuffer);
     
+    float rmsLevelLeft, rmsLevelRight;
+    
     SoftClipper mClipper;
     SineWaveFolder mSinFolder;
     juce::dsp::Phaser<float> mPhaserLeft;
