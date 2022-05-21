@@ -11,11 +11,13 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 #include "MyLookAndFeel.h"
+#include "UI/HorizontalMeter.h"
+#include "UI/HorizontalGradientMeter.h"
 
 //==============================================================================
 /**
 */
-class WaveShaperAudioProcessorEditor  : public juce::AudioProcessorEditor
+class WaveShaperAudioProcessorEditor  : public juce::AudioProcessorEditor, public Timer
 {
 public:
     
@@ -32,6 +34,9 @@ public:
      
         or manually when we call repaint() on this class.
      */
+    
+    void timerCallback() override;
+    
     void paint (juce::Graphics&) override;
     
     /*
@@ -50,6 +55,9 @@ private:
     
     TextButton mSavePreset;
     ComboBox mPresetOptions;
+    
+    Gui::HorizontalMeter mHorizontalMeterL, mHorizontalMeterR;
+    //Gui::HorizontalGradientMeter mHorizontalGradientMeterL, mHorizontalGradientMeterR;
 
     MyLookAndFeel mLookAndFeel;
     

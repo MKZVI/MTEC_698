@@ -155,12 +155,14 @@ void WaveShaperAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     rmsLevelLeft = Decibels::gainToDecibels(buffer.getRMSLevel(0, 0, buffer.getNumSamples()));
     rmsLevelRight = Decibels::gainToDecibels(buffer.getRMSLevel(1, 0, buffer.getNumSamples()));
     
-    float drive = getParameterManager()->getCurrentValue(DRIVE);
+    
+    
+    //float drive = getParameterManager()->getCurrentValue(DRIVE);
     //mSinFolder.setParameters(mParameterManager->getCurrentValue(DRIVE));
                              //mParameterManager->getCurrentValue(FLT1HZ),
                              //mParameterManager->getCurrentValue(FLT2HZ));
     
-    
+    // 
     mPhaserLeft.setRate(mParameterManager->getCurrentValue(RATE));
     mPhaserRight.setRate(mParameterManager->getCurrentValue(RATE));
     mPhaserLeft.setDepth(mParameterManager->getCurrentValue(DEPTH));
@@ -182,8 +184,7 @@ void WaveShaperAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
         
         mClipper.processSample(left[i]);
         mClipper.processSample(right[i]);
-        //mSinFolder.processSample(left[i]);
-        //mSinFolder.processSample(right[i]);
+       
 
 
 
@@ -262,6 +263,16 @@ void WaveShaperAudioProcessor::setStateInformation(const void* data, int sizeInB
         mParameterManager->getValueTree()->replaceState(parameter_tree);
         
     }
+}
+
+float WaveShaperAudioProcessor::getRMSValue(const int channel) const
+{
+    jassert(channel == 0 || channel == 1);
+    if (channel == 0)
+        return rmsLevelLeft;
+    if (channel == 1)
+        return rmsLevelRight;
+    return 0.f;
 }
 
 void WaveShaperAudioProcessor::_generateSimpleSample(AudioBuffer<float>& inBuffer)

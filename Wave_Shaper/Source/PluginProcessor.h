@@ -69,6 +69,8 @@ public:
     bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
    #endif
 
+    float getRMSValue(const int channel) const;
+
 private:
     
     void _generateSimpleSample(AudioBuffer<float>& inBuffer);

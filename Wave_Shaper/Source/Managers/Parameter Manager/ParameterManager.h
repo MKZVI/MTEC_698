@@ -16,16 +16,20 @@ class ProcessorInterface;
 class ParameterManager {
 public:
     
-    /* */
+    /*%%*/
     ParameterManager(ProcessorInterface* inInterface);
     
-    /* */
+    /*%%*/
     ~ParameterManager();
     
-    /* */
+    /*%
+    float getDefaultValue(int inParameterID);
+    %*/
+    
+    /*%%*/
     float getCurrentValue(int inParameterID);
     
-    /* */
+    /*%%*/
     juce::AudioProcessorValueTreeState* getValueTree();
     
 private:

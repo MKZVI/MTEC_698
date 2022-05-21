@@ -77,9 +77,23 @@
         </GROUP>
       </GROUP>
       <GROUP id="{049607D3-3567-E69C-5A52-CFCA2E9049FA}" name="UI">
+        <FILE id="oTeeQx" name="Db_Meter.cpp" compile="1" resource="0" file="Source/UI/Db_Meter.cpp"/>
+        <FILE id="MahzxI" name="Db_Meter.h" compile="0" resource="0" file="Source/UI/Db_Meter.h"/>
+        <FILE id="hhUIfa" name="HorizontalGradientMeter.cpp" compile="1" resource="0"
+              file="Source/UI/HorizontalGradientMeter.cpp"/>
+        <FILE id="LNxpHF" name="HorizontalGradientMeter.h" compile="0" resource="0"
+              file="Source/UI/HorizontalGradientMeter.h"/>
+        <FILE id="afjNnd" name="HorizontalMeter.cpp" compile="1" resource="0"
+              file="Source/UI/HorizontalMeter.cpp"/>
+        <FILE id="CRgyQl" name="HorizontalMeter.h" compile="0" resource="0"
+              file="Source/UI/HorizontalMeter.h"/>
         <FILE id="fwd4i5" name="MyLookAndFeel.cpp" compile="1" resource="0"
               file="Source/UI/MyLookAndFeel.cpp"/>
         <FILE id="ILT9ih" name="MyLookAndFeel.h" compile="0" resource="0" file="Source/UI/MyLookAndFeel.h"/>
+        <FILE id="j7ghrw" name="VerticalGradientMeter.cpp" compile="1" resource="0"
+              file="Source/UI/VerticalGradientMeter.cpp"/>
+        <FILE id="RTd5tv" name="VerticalGradientMeter.h" compile="0" resource="0"
+              file="Source/UI/VerticalGradientMeter.h"/>
       </GROUP>
       <FILE id="y1eC7z" name="PluginEditor.cpp" compile="1" resource="0"
             file="Source/PluginEditor.cpp"/>

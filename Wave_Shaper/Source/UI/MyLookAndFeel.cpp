@@ -26,7 +26,7 @@ MyLookAndFeel::~MyLookAndFeel()
 void MyLookAndFeel::drawRotarySlider (Graphics& g, int x, int y, int width, int height, float sliderPos,
                                       const float rotaryStartAngle, const float rotaryEndAngle, Slider& slider)
 {
-    auto outline = Colours::chartreuse;
+    auto outline = Colours::deeppink;
     auto fill    = Colours::black;
 
     auto bounds = Rectangle<int> (x, y, width, height).toFloat().reduced (10);

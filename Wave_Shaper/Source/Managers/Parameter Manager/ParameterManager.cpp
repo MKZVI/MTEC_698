@@ -36,7 +36,13 @@ ParameterManager::~ParameterManager()
     
 }
 
-/* */
+/*
+float ParameterManager::getDefaultValue(int inParameterID)
+{
+    return mParameterState->getRawParameterValue(PARAMETER_NAMES[inParameterID])->load();
+}
+*/
+
 float ParameterManager::getCurrentValue(int inParameterID)
 {
     return mParameterState->getRawParameterValue(PARAMETER_NAMES[inParameterID])->load();

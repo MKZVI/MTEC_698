@@ -18,6 +18,10 @@ WaveShaperAudioProcessorEditor::WaveShaperAudioProcessorEditor (WaveShaperAudioP
     // Lets set the properties we want to initialize on the slider.
     // Dont forget you can right click the name of classes, and select jump to
     // definition in order to see their available functions you can call.
+    addAndMakeVisible(mHorizontalMeterL);
+    addAndMakeVisible(mHorizontalMeterR);
+    
+    startTimerHz(24);
     
     setLookAndFeel(&mLookAndFeel);
     
@@ -64,7 +68,8 @@ WaveShaperAudioProcessorEditor::WaveShaperAudioProcessorEditor (WaveShaperAudioP
     
     addAndMakeVisible(mPresetOptions);
     
-    setSize(TotalNumberParameters * 100 + 100, 120);
+    
+    setSize(TotalNumberParameters * 100 + 100, 175);
 }
 
 WaveShaperAudioProcessorEditor::~WaveShaperAudioProcessorEditor()
@@ -73,20 +78,36 @@ WaveShaperAudioProcessorEditor::~WaveShaperAudioProcessorEditor()
 }
 
 //==============================================================================
+
+void WaveShaperAudioProcessorEditor::timerCallback()
+{
+    mHorizontalMeterL.setLevel(audioProcessor.getRMSValue(0));
+    mHorizontalMeterR.setLevel(audioProcessor.getRMSValue(1));
+    
+    mHorizontalMeterL.repaint();
+    mHorizontalMeterR.repaint();
+    
+}
+
+
 void WaveShaperAudioProcessorEditor::paint(juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
-    //g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::0xDE8852));
+    //g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
+    g.fillAll(juce::Colours::palegreen);
     
     
-    g.setColour(juce::Colours::white);
+    g.setColour(juce::Colours::black);
     g.setFont(juce::Font(12));
     //g.setFont(juce::Font());
+    g.drawText("L", 35, 130, 15, 20, Justification::centred);
+    g.drawText("R", 35, 150, 15, 20, Justification::centred);
     
     for (int i = 0; i < TotalNumberParameters; i++) {
         g.drawText(PARAMETER_NAMES[i], mSliders[i]->getX(), mSliders[i]->getBottom(), 100, 20, Justification::centred);
+        
+    
     }
 }
 
@@ -98,6 +119,10 @@ void WaveShaperAudioProcessorEditor::resized()
     
     mSavePreset.setBounds(getWidth()-100, 0, 100, 50);
     mPresetOptions.setBounds(getWidth()-100, 50, 100, 50);
+    
+    mHorizontalMeterL.setBounds(50, 130, TotalNumberParameters * 100, 15);
+    
+    mHorizontalMeterR.setBounds(50, 150, TotalNumberParameters * 100, 15);
 }
 
 void WaveShaperAudioProcessorEditor::_updatePresetComboBoxOptions()
