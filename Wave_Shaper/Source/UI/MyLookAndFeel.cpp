@@ -26,8 +26,8 @@ MyLookAndFeel::~MyLookAndFeel()
 void MyLookAndFeel::drawRotarySlider (Graphics& g, int x, int y, int width, int height, float sliderPos,
                                       const float rotaryStartAngle, const float rotaryEndAngle, Slider& slider)
 {
-    auto outline = Colours::red;
-    auto fill    = Colours::pink;
+    auto outline = Colours::chartreuse;
+    auto fill    = Colours::black;
 
     auto bounds = Rectangle<int> (x, y, width, height).toFloat().reduced (10);
 
@@ -70,5 +70,7 @@ void MyLookAndFeel::drawRotarySlider (Graphics& g, int x, int y, int width, int 
                              bounds.getCentreY() + arcRadius * std::sin (toAngle - MathConstants<float>::halfPi));
 
     g.setColour (slider.findColour (Slider::thumbColourId));
+    
+    
     g.fillEllipse (Rectangle<float> (thumbWidth, thumbWidth).withCentre (thumbPoint));
 }

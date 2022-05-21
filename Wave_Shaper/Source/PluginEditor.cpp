@@ -78,9 +78,12 @@ void WaveShaperAudioProcessorEditor::paint(juce::Graphics& g)
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     
     g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
+    //g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::0xDE8852));
+    
     
     g.setColour(juce::Colours::white);
     g.setFont(juce::Font(12));
+    //g.setFont(juce::Font());
     
     for (int i = 0; i < TotalNumberParameters; i++) {
         g.drawText(PARAMETER_NAMES[i], mSliders[i]->getX(), mSliders[i]->getBottom(), 100, 20, Justification::centred);

@@ -309,7 +309,8 @@ public:
     */
     enum ColourIds
     {
-        backgroundColourId          = 0x1005700,  /**< A colour to use to fill the window's background. */
+        //backgroundColourId          = 0x1005700,  /**< A colour to use to fill the window's background. */
+        backgroundColourId            = 0xffde8852,
     };
 
     //==============================================================================

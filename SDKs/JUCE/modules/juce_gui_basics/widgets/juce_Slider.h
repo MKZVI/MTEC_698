@@ -864,8 +864,10 @@ public:
     enum ColourIds
     {
         backgroundColourId          = 0x1001200,  /**< A colour to use to fill the slider's background. */
+        //backgroundColourId          = 0xDE8852,
         thumbColourId               = 0x1001300,  /**< The colour to draw the thumb with. It's up to the look
-                                                       and feel class how this is used. */
+                                                       //and feel class how this is used. */
+        //thumbColourId               = 0x4B3CDE,
         trackColourId               = 0x1001310,  /**< The colour to draw the groove that the thumb moves along. */
         rotarySliderFillColourId    = 0x1001311,  /**< For rotary sliders, this colour fills the outer curve. */
         rotarySliderOutlineColourId = 0x1001312,  /**< For rotary sliders, this colour is used to draw the outer curve's outline. */
